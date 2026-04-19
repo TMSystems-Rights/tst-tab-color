@@ -1,0 +1,106 @@
+{
+	"extName": {
+		"message": "TST タブカラー",
+		"description": "拡張機能の名前"
+	},
+	"extDescription": {
+		"message": "URLパターンに合致するタブの色をTSTサイドバーで変更します",
+		"description": "拡張機能の説明"
+	},
+	"optionsTitle": {
+		"message": "ルール設定",
+		"description": "オプションページのタイトル（<title>タグ）"
+	},
+	"optionsRuleListHeader": {
+		"message": "ルール一覧",
+		"description": "ルール一覧セクションの見出し"
+	},
+	"optionsAddRuleHeader": {
+		"message": "ルール追加",
+		"description": "ルール追加セクションの見出し（追加モード時）"
+	},
+	"optionsEditRuleHeader": {
+		"message": "ルール更新",
+		"description": "ルール追加セクションの見出し（更新モード時）"
+	},
+	"optionsLabelPattern": {
+		"message": "URLパターン",
+		"description": "URLパターン入力欄のラベル／ルール一覧の列見出し"
+	},
+	"optionsLabelPatternType": {
+		"message": "種別",
+		"description": "パターン種別選択欄のラベル／ルール一覧の列見出し"
+	},
+	"optionsLabelPrefix": {
+		"message": "前方一致",
+		"description": "パターン種別：前方一致"
+	},
+	"optionsLabelRegexp": {
+		"message": "正規表現",
+		"description": "パターン種別：正規表現"
+	},
+	"optionsLabelFontFamily": {
+		"message": "フォント",
+		"description": "フォント入力欄のラベル／ルール一覧の列見出し"
+	},
+	"optionsLabelFontColor": {
+		"message": "フォント色",
+		"description": "フォント色入力欄のラベル／ルール一覧の列見出し"
+	},
+	"optionsLabelBgColor": {
+		"message": "背景色",
+		"description": "背景色入力欄のラベル／ルール一覧の列見出し"
+	},
+	"optionsButtonRegister": {
+		"message": "新規登録",
+		"description": "ルール新規登録ボタン（追加モード時の主ボタン）"
+	},
+	"optionsButtonUpdate": {
+		"message": "更新",
+		"description": "ルール更新ボタン（更新モード時の主ボタン）"
+	},
+	"optionsButtonEdit": {
+		"message": "編集",
+		"description": "ルール行の編集ボタン"
+	},
+	"optionsButtonCancel": {
+		"message": "キャンセル",
+		"description": "入力値リセット／変更前値復元ボタン"
+	},
+	"optionsButtonDelete": {
+		"message": "削除",
+		"description": "ルール行の削除ボタン"
+	},
+	"optionsSaveSuccess": {
+		"message": "保存しました",
+		"description": "保存成功メッセージ（登録・更新・削除・並び替え時に表示）"
+	},
+	"errorPatternEmpty": {
+		"message": "URLパターンを入力してください",
+		"description": "URLパターン未入力エラー"
+	},
+	"errorInvalidRegexp": {
+		"message": "正規表現が無効です",
+		"description": "正規表現構文エラー"
+	},
+	"errorInvalidColor": {
+		"message": "カラーコードの形式が不正です（例: #ff0000）",
+		"description": "カラーコード形式エラー"
+	},
+	"errorSaveFailed": {
+		"message": "保存に失敗しました",
+		"description": "storage.sync 書き込み失敗エラー"
+	},
+	"errorNoStyle": {
+		"message": "フォント・フォント色・背景色のいずれかを指定してください",
+		"description": "スタイルが1つも指定されていないときのエラー（ブロック）"
+	},
+	"optionsThemeLight": {
+		"message": "ライト",
+		"description": "テーマ切替トグルの「ライト」側ラベル"
+	},
+	"optionsThemeDark": {
+		"message": "ダーク",
+		"description": "テーマ切替トグルの「ダーク」側ラベル"
+	}
+}

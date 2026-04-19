@@ -1,0 +1,36 @@
+{
+	"manifest_version": 3,
+	"name": "__MSG_extName__",
+	"version": "1.0.0",
+	"description": "__MSG_extDescription__",
+	"author": "TMSystems",
+	"default_locale": "ja",
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "{f88d6b5e-0c2d-4edd-b9c6-d433b079fb80}"
+		}
+	},
+	"permissions": [
+		"tabs",
+		"storage"
+	],
+	"background": {
+		"scripts": [
+			"common/common.js",
+			"background/background.js"
+		]
+	},
+	"action": {
+		"default_title": "__MSG_extName__",
+		"default_icon": "icon/icon-48.png"
+	},
+	"options_ui": {
+		"page": "options/options.html",
+		"open_in_tab": true
+	},
+	"icons": {
+		"48":  "icon/icon-48.png",
+		"96":  "icon/icon-96.png",
+		"128": "icon/icon-128.png"
+	}
+}

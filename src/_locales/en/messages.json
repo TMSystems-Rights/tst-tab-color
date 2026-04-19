@@ -1,0 +1,106 @@
+{
+	"extName": {
+		"message": "TST Tab Color",
+		"description": "Name of the extension"
+	},
+	"extDescription": {
+		"message": "Changes tab colors in TST sidebar based on URL patterns",
+		"description": "Description of the extension"
+	},
+	"optionsTitle": {
+		"message": "Rule Settings",
+		"description": "Title of the options page (<title> tag)"
+	},
+	"optionsRuleListHeader": {
+		"message": "Rule List",
+		"description": "Heading of the rule list section"
+	},
+	"optionsAddRuleHeader": {
+		"message": "Add Rule",
+		"description": "Rule form section heading (add mode)"
+	},
+	"optionsEditRuleHeader": {
+		"message": "Edit Rule",
+		"description": "Rule form section heading (edit mode)"
+	},
+	"optionsLabelPattern": {
+		"message": "URL Pattern",
+		"description": "Label for the URL pattern input / rule list column header"
+	},
+	"optionsLabelPatternType": {
+		"message": "Type",
+		"description": "Label for the pattern type selector / rule list column header"
+	},
+	"optionsLabelPrefix": {
+		"message": "Prefix match",
+		"description": "Pattern type: prefix match"
+	},
+	"optionsLabelRegexp": {
+		"message": "Regular expression",
+		"description": "Pattern type: regular expression"
+	},
+	"optionsLabelFontFamily": {
+		"message": "Font",
+		"description": "Label for the font input / rule list column header"
+	},
+	"optionsLabelFontColor": {
+		"message": "Font Color",
+		"description": "Label for the font color input / rule list column header"
+	},
+	"optionsLabelBgColor": {
+		"message": "Background Color",
+		"description": "Label for the background color input / rule list column header"
+	},
+	"optionsButtonRegister": {
+		"message": "Register",
+		"description": "Primary button in add mode (registers new rule)"
+	},
+	"optionsButtonUpdate": {
+		"message": "Update",
+		"description": "Primary button in edit mode (updates existing rule)"
+	},
+	"optionsButtonEdit": {
+		"message": "Edit",
+		"description": "Edit button in each rule row"
+	},
+	"optionsButtonCancel": {
+		"message": "Cancel",
+		"description": "Cancel button (resets form / restores pre-edit values)"
+	},
+	"optionsButtonDelete": {
+		"message": "Delete",
+		"description": "Delete button in each rule row"
+	},
+	"optionsSaveSuccess": {
+		"message": "Saved successfully",
+		"description": "Shown after register / update / delete / reorder"
+	},
+	"errorPatternEmpty": {
+		"message": "Please enter a URL pattern",
+		"description": "Error: URL pattern is empty"
+	},
+	"errorInvalidRegexp": {
+		"message": "Invalid regular expression",
+		"description": "Error: regular expression syntax is invalid"
+	},
+	"errorInvalidColor": {
+		"message": "Invalid color code format (e.g. #ff0000)",
+		"description": "Error: color code format is invalid"
+	},
+	"errorSaveFailed": {
+		"message": "Failed to save",
+		"description": "Error: storage.sync write failed"
+	},
+	"errorNoStyle": {
+		"message": "Please specify at least one of font, font color, or background color",
+		"description": "Error (blocking) shown when font / font color / background color are all empty"
+	},
+	"optionsThemeLight": {
+		"message": "Light",
+		"description": "Label for the \"Light\" side of the theme toggle"
+	},
+	"optionsThemeDark": {
+		"message": "Dark",
+		"description": "Label for the \"Dark\" side of the theme toggle"
+	}
+}

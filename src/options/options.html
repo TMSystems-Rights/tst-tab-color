@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- data-i18n は common.js の SetDocumentLocale() により textContent / document.title が上書きされる。
+		     ブラウザ言語が messages.json 未収録の場合は既定ロケール（manifest.default_locale=ja）が適用される。
+		     既定テキストはフォールバック表示用に残してある。 -->
+		<title data-i18n="optionsTitle">ルール設定</title>
+		<link rel="icon" href="/icon/icon-48.png" />
+		<link rel="stylesheet" href="/options/options.css" />
+	</head>
+	<body>
+		<header class="tm-header">
+			<h1 data-i18n="extName">TST タブカラー</h1>
+			<!-- テーマ切替トグル（Phase 8）：☀ライト [ switch ] 🌙ダーク の並び。
+			     チェック状態 ON = ダーク、OFF = ライト。既定はダーク（storage.local に未保存時）。 -->
+			<div class="tm-theme-toggle">
+				<span class="tm-theme-label">
+					<span aria-hidden="true">☀</span>
+					<span id="tmLblThemeLight" data-i18n="optionsThemeLight">ライト</span>
+				</span>
+				<label class="tm-theme-switch">
+					<input type="checkbox" id="tmChkTheme" />
+					<span class="tm-theme-slider" aria-hidden="true"></span>
+				</label>
+				<span class="tm-theme-label">
+					<span aria-hidden="true">🌙</span>
+					<span id="tmLblThemeDark" data-i18n="optionsThemeDark">ダーク</span>
+				</span>
+			</div>
+		</header>
+
+		<main class="tm-main">
+			<!-- ========================================
+			     ルール一覧
+			     ======================================== -->
+			<section class="tm-section">
+				<h2 data-i18n="optionsRuleListHeader">ルール一覧</h2>
+				<table class="tm-rule-table">
+					<thead>
+						<tr>
+							<th class="tm-col-handle"></th>
+							<th class="tm-col-pattern"    data-i18n="optionsLabelPattern">URLパターン</th>
+							<th class="tm-col-type"       data-i18n="optionsLabelPatternType">種別</th>
+							<th class="tm-col-font"       data-i18n="optionsLabelFontFamily">フォント</th>
+							<th class="tm-col-fontcolor"  data-i18n="optionsLabelFontColor">フォント色</th>
+							<th class="tm-col-bgcolor"    data-i18n="optionsLabelBgColor">背景色</th>
+							<th class="tm-col-edit"></th>
+							<th class="tm-col-delete"></th>
+						</tr>
+					</thead>
+					<!-- 各ルール行は options.js の BuildRuleRow() により動的生成 -->
+					<tbody id="tmRuleList"></tbody>
+				</table>
+			</section>
+
+			<!-- ========================================
+			     ルール追加／更新フォーム
+			     見出しとボタン名称はモード（追加／更新）に応じて options.js の ApplyModeLabels() で書き換える。
+			     ======================================== -->
+			<section class="tm-section">
+				<h2 id="tmSectionFormHeader" data-i18n="optionsAddRuleHeader">ルール追加</h2>
+				<div class="tm-form-grid">
+					<label for="tmTxtPattern" data-i18n="optionsLabelPattern">URLパターン</label>
+					<input type="text" id="tmTxtPattern" class="tm-input-pattern" />
+
+					<span class="tm-form-label" data-i18n="optionsLabelPatternType">種別</span>
+					<div class="tm-radio-group">
+						<label>
+							<input type="radio" name="tmPatternType" id="tmRadPrefix" value="prefix" checked />
+							<!-- ラジオの表示文字は <span> に入れて data-i18n を付与（SetDocumentLocale が textContent を書き換えるため） -->
+							<span data-i18n="optionsLabelPrefix">前方一致</span>
+						</label>
+						<label>
+							<input type="radio" name="tmPatternType" id="tmRadRegexp" value="regexp" />
+							<span data-i18n="optionsLabelRegexp">正規表現</span>
+						</label>
+					</div>
+
+					<label for="tmTxtFont" data-i18n="optionsLabelFontFamily">フォント</label>
+					<input type="text" id="tmTxtFont" class="tm-input-font" />
+
+					<label for="tmTxtFontColor" data-i18n="optionsLabelFontColor">フォント色</label>
+					<div class="tm-color-group">
+						<input type="text" id="tmTxtFontColor" class="tm-input-color" placeholder="#ffffff" />
+						<!-- type=color の既定値は白。テキスト欄ブランク時の表示専用であり保存値はブランクのまま -->
+						<input type="color" id="tmColorFont" class="tm-color-picker" value="#ffffff" />
+					</div>
+
+					<label for="tmTxtBgColor" data-i18n="optionsLabelBgColor">背景色</label>
+					<div class="tm-color-group">
+						<input type="text" id="tmTxtBgColor" class="tm-input-color" placeholder="#000000" />
+						<input type="color" id="tmColorBg" class="tm-color-picker" value="#ffffff" />
+					</div>
+				</div>
+				<div class="tm-form-actions">
+					<!-- キャンセル（ネガティブ）→ 主ボタン（ポジティブ）の順に配置。tabindex 自然順もこの順 -->
+					<button id="tmBtnCancel" type="button" class="tm-btn-cancel" data-i18n="optionsButtonCancel">キャンセル</button>
+					<button id="tmBtnAdd"    type="button" class="tm-btn-primary" data-i18n="optionsButtonRegister">新規登録</button>
+				</div>
+			</section>
+
+			<!-- ========================================
+			     エラー・成功メッセージ表示エリア
+			     登録・更新・削除・並び替えは即時保存のため、保存ボタンは廃止（Phase 7 仕様）。
+			     ======================================== -->
+			<div id="tmMsgError" class="tm-msg-error"></div>
+		</main>
+
+		<!-- 外部ライブラリ（npm 取得の jquery を同梱。CDN は使用しない） -->
+		<script src="/lib/jquery.min.js"></script>
+		<!-- 共通定数・ユーティリティ（TMS_COMMON / DeepFreeze） -->
+		<script src="/common/common.js"></script>
+		<!-- オプションページロジック（TMS_OPTIONS） -->
+		<script src="/options/options.js"></script>
+	</body>
+</html>

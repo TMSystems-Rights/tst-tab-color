@@ -1,0 +1,458 @@
+/* ==========================================================================
+ * tst-tab-color - options.css
+ * オプションページのスタイル定義。機能設計書 §8 に準拠。
+ * id は tm 接頭辞＋キャメルケース、CSS クラスは tm- 接頭辞。
+ *
+ * テーマ対応（Phase 8）:
+ *   :root          … ダークテーマの値（既定）
+ *   body.tm-theme-light … ライトテーマのオーバーライド
+ *   いずれも CSS 変数（--tm-*）経由で参照し、ページ全体に反映する。
+ *   既定をダークにすることで初回読込時の描画フラッシュ（白背景→暗背景）を抑止する。
+ * ========================================================================== */
+
+/* ==========================================================================
+ * テーマ変数（既定＝ダーク）
+ * ========================================================================== */
+:root {
+	/* ページ全体の背景色／文字色 */
+	--tm-bg-page:          #333;
+	--tm-fg-page:          #ddd;
+
+	/* カードやセクションの背景 */
+	--tm-bg-surface:       #3b3b3b;
+	--tm-border-surface:   #555;
+
+	/* ヘッダー／見出し */
+	--tm-bg-header:        #222121;
+	--tm-border-heading:   #4a90e2;
+	--tm-border-subhead:   #555;
+
+	/* ルール一覧テーブル */
+	--tm-bg-table-head:    #2a2f35;
+	--tm-border-table:     #555;
+
+	/* 入力系 */
+	--tm-bg-input:         #2a2a2a;
+	--tm-fg-input:         #e5e9c7;
+	--tm-border-input:     #777;
+
+	/* 編集中の行ハイライト（ダーク版） */
+	--tm-bg-row-editing:   #1f3a26;
+	--tm-outline-editing:  #4caf50;
+
+	/* D&D ドラッグ中ターゲット行 */
+	--tm-bg-row-drag-over: #4a4520;
+
+	/* ボタン（主／キャンセル／編集／削除） */
+	--tm-btn-primary-bg:       #4a90e2;
+	--tm-btn-primary-fg:       #fff;
+	--tm-btn-primary-border:   #4a90e2;
+	--tm-btn-primary-bg-hover: #357ab8;
+
+	--tm-btn-cancel-bg:        #555;
+	--tm-btn-cancel-fg:        #eee;
+	--tm-btn-cancel-border:    #888;
+	--tm-btn-cancel-bg-hover:  #666;
+
+	--tm-btn-edit-bg:          #3b3b3b;
+	--tm-btn-edit-fg:          #4a90e2;
+	--tm-btn-edit-border:      #4a90e2;
+	--tm-btn-edit-bg-hover:    #253545;
+
+	--tm-btn-delete-bg:        #3b3b3b;
+	--tm-btn-delete-fg:        #ff7a77;
+	--tm-btn-delete-border:    #d9534f;
+	--tm-btn-delete-bg-hover:  #4a2a2a;
+
+	/* バリデーション／メッセージ */
+	--tm-invalid-border:   #d9534f;
+	--tm-invalid-bg:       #4a2a2a;
+	--tm-msg-error:        #ff7a77;
+	--tm-msg-success:      #81c784;
+
+	/* ドラッグハンドル */
+	--tm-drag-handle-fg:   #aaa;
+
+	/* カラースウォッチ枠 */
+	--tm-swatch-border:    #888;
+}
+
+/* ライトテーマのオーバーライド */
+body.tm-theme-light {
+	--tm-bg-page:          #fafafa;
+	--tm-fg-page:          #222;
+
+	--tm-bg-surface:       #fff;
+	--tm-border-surface:   #ddd;
+
+	--tm-bg-header:        #fafafa;
+	--tm-border-heading:   #4a90e2;
+	--tm-border-subhead:   #eee;
+
+	--tm-bg-table-head:    #f0f4f8;
+	--tm-border-table:     #eee;
+
+	--tm-bg-input:         #fff;
+	--tm-fg-input:         #222;
+	--tm-border-input:     #ccc;
+
+	--tm-bg-row-editing:   #e6f4ea;
+	--tm-outline-editing:  #2e7d32;
+
+	--tm-bg-row-drag-over: #fff9c4;
+
+	--tm-btn-primary-bg:       #4a90e2;
+	--tm-btn-primary-fg:       #fff;
+	--tm-btn-primary-border:   #4a90e2;
+	--tm-btn-primary-bg-hover: #357ab8;
+
+	--tm-btn-cancel-bg:        #fff;
+	--tm-btn-cancel-fg:        #555;
+	--tm-btn-cancel-border:    #888;
+	--tm-btn-cancel-bg-hover:  #f0f0f0;
+
+	--tm-btn-edit-bg:          #fff;
+	--tm-btn-edit-fg:          #4a90e2;
+	--tm-btn-edit-border:      #4a90e2;
+	--tm-btn-edit-bg-hover:    #e8f1fb;
+
+	--tm-btn-delete-bg:        #fff;
+	--tm-btn-delete-fg:        #d9534f;
+	--tm-btn-delete-border:    #d9534f;
+	--tm-btn-delete-bg-hover:  #fdecea;
+
+	--tm-invalid-border:   #d9534f;
+	--tm-invalid-bg:       #fdecea;
+	--tm-msg-error:        #d9534f;
+	--tm-msg-success:      #2e7d32;
+
+	--tm-drag-handle-fg:   #888;
+
+	--tm-swatch-border:    #ccc;
+}
+
+/* ==========================================================================
+ * 全体レイアウト
+ * ========================================================================== */
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif;
+	margin:      0;
+	padding:     16px;
+	background:  var(--tm-bg-page);
+	color:       var(--tm-fg-page);
+	font-size:   14px;
+}
+
+.tm-header {
+	display:         flex;
+	align-items:     center;
+	justify-content: space-between;
+	gap:             16px;
+	margin-bottom:   16px;
+	padding-bottom:  8px;
+	border-bottom:   2px solid var(--tm-border-heading);
+}
+
+.tm-header h1 {
+	font-size: 20px;
+	margin:    0;
+}
+
+.tm-main {
+	max-width: 1100px;
+	margin:    0 auto;
+}
+
+/* ==========================================================================
+ * テーマトグル（ヘッダー右側）
+ * ☀ライト [ switch ] 🌙ダーク の形でアイコン＋文字表記を並べる
+ * ========================================================================== */
+.tm-theme-toggle {
+	display:     flex;
+	align-items: center;
+	gap:         8px;
+	font-size:   13px;
+	user-select: none;
+}
+
+.tm-theme-toggle .tm-theme-label {
+	display:     inline-flex;
+	align-items: center;
+	gap:         4px;
+}
+
+/* トグルスイッチ本体（checkbox を視覚的にスイッチへ変換） */
+.tm-theme-switch {
+	position: relative;
+	width:    40px;
+	height:   20px;
+}
+
+.tm-theme-switch input[type="checkbox"] {
+	opacity:         0;
+	width:           100%;
+	height:          100%;
+	margin:          0;
+	position:        absolute;
+	inset:           0;
+	cursor:          pointer;
+	z-index:         2;
+}
+
+.tm-theme-switch .tm-theme-slider {
+	position:      absolute;
+	inset:         0;
+	background:    #aaa;
+	border-radius: 999px;
+	transition:    background 0.15s ease-in-out;
+}
+
+.tm-theme-switch .tm-theme-slider::before {
+	content:       "";
+	position:      absolute;
+	top:           2px;
+	left:          2px;
+	width:         16px;
+	height:        16px;
+	background:    #fff;
+	border-radius: 50%;
+	transition:    transform 0.15s ease-in-out;
+}
+
+/* checked（ダーク側）の見た目 */
+.tm-theme-switch input[type="checkbox"]:checked ~ .tm-theme-slider {
+	background: #4a90e2;
+}
+.tm-theme-switch input[type="checkbox"]:checked ~ .tm-theme-slider::before {
+	transform: translateX(20px);
+}
+
+/* ==========================================================================
+ * セクション共通
+ * ========================================================================== */
+.tm-section {
+	background:    var(--tm-bg-surface);
+	padding:       12px 16px;
+	margin-bottom: 16px;
+	border:        1px solid var(--tm-border-surface);
+	border-radius: 4px;
+}
+
+.tm-section h2 {
+	font-size:      16px;
+	margin:         0 0 12px 0;
+	padding-bottom: 6px;
+	border-bottom:  1px solid var(--tm-border-subhead);
+}
+
+/* ==========================================================================
+ * ルール一覧テーブル
+ * ========================================================================== */
+.tm-rule-table {
+	width:           100%;
+	border-collapse: collapse;
+	table-layout:    fixed;
+}
+
+.tm-rule-table th,
+.tm-rule-table td {
+	padding:        6px 8px;
+	border-bottom:  1px solid var(--tm-border-table);
+	text-align:     left;
+	vertical-align: middle;
+	font-size:      13px;
+	overflow:       hidden;
+	text-overflow:  ellipsis;
+	white-space:    nowrap;
+}
+
+.tm-rule-table th {
+	background:  var(--tm-bg-table-head);
+	font-weight: 600;
+}
+
+/* 列幅（機能設計書 §8.1 のレイアウト順） */
+.tm-col-handle    { width:  30px; text-align: center; }
+.tm-col-pattern   { width:  auto; }
+.tm-col-type      { width:  90px; }
+.tm-col-font      { width: 160px; }
+.tm-col-fontcolor { width: 130px; }
+.tm-col-bgcolor   { width: 130px; }
+.tm-col-edit      { width:  70px; text-align: center; }
+.tm-col-delete    { width:  70px; text-align: center; }
+
+/* D&D 用の行スタイル */
+.tm-rule-row              { cursor: default; }
+.tm-rule-row.tm-dragging  { opacity: 0.4; }
+.tm-rule-row.tm-drag-over { background: var(--tm-bg-row-drag-over); }
+
+/* 編集中の行をハイライト（更新モードの対象が視覚的に分かるよう枠線＋背景を強調） */
+.tm-rule-row.tm-rule-row-editing {
+	background:     var(--tm-bg-row-editing);
+	outline:        2px solid var(--tm-outline-editing);
+	outline-offset: -2px;
+}
+
+/* ドラッグハンドル（≡アイコン） */
+.tm-drag-handle {
+	cursor:      move;
+	user-select: none;
+	text-align:  center;
+	font-size:   16px;
+	color:       var(--tm-drag-handle-fg);
+}
+
+/* ルール一覧セル内のカラースウォッチ */
+.tm-rule-color-swatch {
+	display:        inline-block;
+	width:          14px;
+	height:         14px;
+	border:         1px solid var(--tm-swatch-border);
+	vertical-align: middle;
+	margin-right:   4px;
+}
+
+/* 編集ボタン（一覧行） — ニュートラル配色 */
+.tm-btn-edit {
+	padding:       2px 10px;
+	font-size:     12px;
+	cursor:        pointer;
+	border:        1px solid var(--tm-btn-edit-border);
+	background:    var(--tm-btn-edit-bg);
+	color:         var(--tm-btn-edit-fg);
+	border-radius: 2px;
+}
+
+.tm-btn-edit:hover {
+	background: var(--tm-btn-edit-bg-hover);
+}
+
+/* 削除ボタン（一覧行） — ネガティブ配色 */
+.tm-btn-delete {
+	padding:       2px 10px;
+	font-size:     12px;
+	cursor:        pointer;
+	border:        1px solid var(--tm-btn-delete-border);
+	background:    var(--tm-btn-delete-bg);
+	color:         var(--tm-btn-delete-fg);
+	border-radius: 2px;
+}
+
+.tm-btn-delete:hover {
+	background: var(--tm-btn-delete-bg-hover);
+}
+
+/* ==========================================================================
+ * 追加フォーム（グリッドレイアウト）
+ * ========================================================================== */
+.tm-form-grid {
+	display:               grid;
+	grid-template-columns: 120px 1fr;
+	gap:                   8px 12px;
+	align-items:           center;
+}
+
+.tm-form-grid > label,
+.tm-form-grid > .tm-form-label {
+	font-size:   13px;
+	font-weight: 600;
+}
+
+.tm-form-grid input[type="text"] {
+	padding:       4px 6px;
+	font-size:     13px;
+	border:        1px solid var(--tm-border-input);
+	background:    var(--tm-bg-input);
+	color:         var(--tm-fg-input);
+	border-radius: 2px;
+	width:         100%;
+	box-sizing:    border-box;
+}
+
+.tm-form-grid input.tm-input-color {
+	max-width:   140px;
+	font-family: monospace;
+}
+
+/* バリデーションエラー時の枠（機能設計書 §8.2：不正な形式は赤枠） */
+.tm-form-grid input.tm-invalid {
+	border-color: var(--tm-invalid-border);
+	background:   var(--tm-invalid-bg);
+}
+
+.tm-radio-group label {
+	margin-right: 16px;
+	font-weight:  normal;
+}
+
+/* カラーピッカーとテキストボックスの横並び */
+.tm-color-group {
+	display:     flex;
+	align-items: center;
+	gap:         6px;
+}
+
+.tm-color-picker {
+	width:      34px;
+	height:     28px;
+	padding:    0;
+	border:     1px solid var(--tm-border-input);
+	cursor:     pointer;
+	background: var(--tm-bg-input);
+}
+
+/* ==========================================================================
+ * フォームアクション部（主ボタン「新規登録／更新」とキャンセルボタン）
+ * 登録・更新・削除・並び替えは即時保存のため、独立した保存ボタンは Phase 7 で廃止。
+ * ========================================================================== */
+.tm-form-actions {
+	text-align: right;
+	margin-top: 12px;
+}
+
+.tm-form-actions button {
+	padding:       6px 20px;
+	font-size:     13px;
+	cursor:        pointer;
+	border-radius: 2px;
+	font-weight:   600;
+	margin-left:   8px;
+}
+
+/* 主ボタン（新規登録／更新）— ポジティブ配色（青系） */
+.tm-form-actions button.tm-btn-primary {
+	border:     1px solid var(--tm-btn-primary-border);
+	background: var(--tm-btn-primary-bg);
+	color:      var(--tm-btn-primary-fg);
+}
+
+.tm-form-actions button.tm-btn-primary:hover {
+	background: var(--tm-btn-primary-bg-hover);
+}
+
+/* キャンセルボタン — ネガティブ配色（グレー系、削除ボタンの赤と区別） */
+.tm-form-actions button.tm-btn-cancel {
+	border:     1px solid var(--tm-btn-cancel-border);
+	background: var(--tm-btn-cancel-bg);
+	color:      var(--tm-btn-cancel-fg);
+}
+
+.tm-form-actions button.tm-btn-cancel:hover {
+	background: var(--tm-btn-cancel-bg-hover);
+}
+
+/* ==========================================================================
+ * メッセージ表示（エラー・成功）
+ * ========================================================================== */
+.tm-msg-error {
+	min-height:  20px;
+	padding:     6px 0;
+	font-size:   13px;
+	color:       var(--tm-msg-error);
+	font-weight: 600;
+}
+
+/* 成功メッセージ表示時はクラスで緑色に切り替え */
+.tm-msg-error.tm-msg-success {
+	color: var(--tm-msg-success);
+}
