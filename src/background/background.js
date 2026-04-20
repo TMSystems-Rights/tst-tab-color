@@ -113,8 +113,23 @@ const TMS_BACKGROUND = {
 		 * ブランク項目は出力しない（未指定時はブラウザの既定値に従わせる）。
 		 * 子タブのインデントをはみ出して背景が描画されないよう、背景色は
 		 * タブ本体（.tab）ではなく内側の .background 要素に対して適用する。
-		 * また :hover / :active 時は、fontColor / backgroundColor が指定されている
-		 * 項目のみ反転色でオーバーライドする（機能設計書 §6.2 Case C）。
+		 *
+		 * 通常時のフォント色指定：
+		 *   fontColor を `.tab.tm-rule-{n}` に対して CSS 変数 --tab-text で書き換える。
+		 *   これにより .label（color）/ .twisty（fill/background）/ .closebox::after（background）
+		 *   の三者が fontColor 色で描画される。.label には直接 color も冗長指定する。
+		 *
+		 * :hover / :active 時の挙動（Phase 8 改訂仕様）：
+		 *   backgroundColor 指定時のみオーバーライドを出力する。fontColor の指定有無には依存しない。
+		 *     - 背景色：invert(bg) を .background に適用
+		 *     - 前景色：反転前の bg 値を「タブ直下」の CSS 変数 --tab-text に設定することで
+		 *              .label（color）/ .twisty（fill または background）/ .closebox::after（background）
+		 *              の三者へ一括伝播させる。TST の .twisty/.closebox は SVG コンテキストフィルで
+		 *              色を描画しているため `color` プロパティでは効かず、--tab-text の書き換えが必要。
+		 *              併せて .label には直接 color も指定する（TST 自身の .label スタイルが
+		 *              特異度で勝るケースに備える冗長指定）。
+		 *   backgroundColor 未指定時はオーバーライドを出力しない（TST 既定のホバー挙動に委ねる）。
+		 *
 		 * @param {Array} rules - ルール配列（TcRule[]）
 		 * @returns {string} 注入する CSS 文字列（複数ルールを改行で結合）
 		 */
@@ -125,15 +140,20 @@ const TMS_BACKGROUND = {
 			for (let i = 0; i < rules.length; i++) {
 				const rule      = rules[i];
 				const className = prefix + i;
+				const tabSel    = `.tab.${className}`;
 
-				// 背景要素（.tab.tm-rule-{n} .background）… 背景色
-				// 親 .tab ではなく内側の .background に当てることで、子階層のインデント
-				// 領域（左側の余白）にまで背景色が漏れるのを防ぐ。
+				// 通常時 - 背景色（親 .tab ではなく .background へ。子階層のインデント漏れ防止）
 				if (rule.backgroundColor) {
-					lines.push(`.tab.${className} .background { background-color: ${rule.backgroundColor}; }`);
+					lines.push(`${tabSel} .background { background-color: ${rule.backgroundColor}; }`);
 				}
 
-				// ラベル要素（.tab.tm-rule-{n} .label）… フォント色・フォント
+				// 通常時 - フォント色：--tab-text を書き換えることで
+				// .label（color）/ .twisty（fill/background）/ .closebox::after（background）に伝播
+				if (rule.fontColor) {
+					lines.push(`${tabSel} { --tab-text: ${rule.fontColor}; }`);
+				}
+
+				// 通常時 - フォント色（.label 保険）・フォント
 				const labelDecls = [];
 				if (rule.fontColor) {
 					labelDecls.push(`color: ${rule.fontColor};`);
@@ -142,21 +162,31 @@ const TMS_BACKGROUND = {
 					labelDecls.push(`font-family: ${rule.fontFamily};`);
 				}
 				if (labelDecls.length > 0) {
-					lines.push(`.tab.${className} .label { ${labelDecls.join(' ')} }`);
+					lines.push(`${tabSel} .label { ${labelDecls.join(' ')} }`);
 				}
 
-				// :hover / :active 時の反転色オーバーライド（Case C）
-				// fontColor / backgroundColor それぞれが指定されているときのみ反転色を出力する。
-				// 未指定のプロパティは反転対象にならず、TST 側の既定挙動がそのまま有効になる。
+				// :hover / :active 時のオーバーライド（bg 指定時のみ、fg 指定有無に依存しない）
 				if (rule.backgroundColor) {
-					const invBg = invert(rule.backgroundColor);
-					lines.push(`.tab.${className}:hover .background,`
-						+ ` .tab.${className}.active .background { background-color: ${invBg}; }`);
-				}
-				if (rule.fontColor) {
-					const invFc = invert(rule.fontColor);
-					lines.push(`.tab.${className}:hover .label,`
-						+ ` .tab.${className}.active .label { color: ${invFc}; }`);
+					const invBg     = invert(rule.backgroundColor);
+					const hoverSel  = `${tabSel}:hover`;
+					const activeSel = `${tabSel}.active`;
+
+					// 背景 → 反転色
+					lines.push(
+						`${hoverSel} .background, ${activeSel} .background`
+						+ ` { background-color: ${invBg}; }`
+					);
+					// 前景 → 反転前の背景色。--tab-text を書き換えて
+					// .twisty（fill/background）と .closebox::after（background）に伝播させる
+					lines.push(
+						`${hoverSel}, ${activeSel}`
+						+ ` { --tab-text: ${rule.backgroundColor}; }`
+					);
+					// .label は TST 側の特異度の高いスタイルに負けないよう直接 color も指定
+					lines.push(
+						`${hoverSel} .label, ${activeSel} .label`
+						+ ` { color: ${rule.backgroundColor}; }`
+					);
 				}
 			}
 			return lines.join('\n');
