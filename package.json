@@ -4,7 +4,8 @@
 	"description": "Firefox拡張「TST タブカラー」用ワークスペース",
 	"main": "index.js",
 	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
+		"test":      "echo \"Error: no test specified\" && exit 1",
+		"build:zip": "python scripts/build-zip.py"
 	},
 	"repository": {
 		"type": "git",
