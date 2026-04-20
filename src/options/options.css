@@ -75,6 +75,11 @@
 
 	/* カラースウォッチ枠 */
 	--tm-swatch-border:    #888;
+
+	/* 進捗バー（ダーク） */
+	--tm-progress-track:   #555;
+	--tm-progress-fill:    #4a90e2;
+	--tm-progress-text:    #ddd;
 }
 
 /* ライトテーマのオーバーライド */
@@ -129,6 +134,11 @@ body.tm-theme-light {
 	--tm-drag-handle-fg:   #888;
 
 	--tm-swatch-border:    #ccc;
+
+	/* 進捗バー（ライト） */
+	--tm-progress-track:   #ddd;
+	--tm-progress-fill:    #4a90e2;
+	--tm-progress-text:    #222;
 }
 
 /* ==========================================================================
@@ -455,4 +465,41 @@ body {
 /* 成功メッセージ表示時はクラスで緑色に切り替え */
 .tm-msg-error.tm-msg-success {
 	color: var(--tm-msg-success);
+}
+
+/* ==========================================================================
+ * 進捗バー（課題1 パフォーマンス改善 - 全タブ適用中の視覚フィードバック）
+ * 参考: tst-multi-function-exporter/src/viewer/viewer.css
+ * バックグラウンドの ApplyRulesToAllTabs が走っている間のみ JS で可視化する。
+ * ========================================================================== */
+.tm-progress-container {
+	/* 表示制御は JS で行う（初期は非表示） */
+	display:       none;
+	background:    var(--tm-bg-surface);
+	padding:       10px 14px;
+	margin-bottom: 16px;
+	border:        1px solid var(--tm-border-surface);
+	border-radius: 4px;
+}
+
+.tm-progress-text {
+	color:       var(--tm-progress-text);
+	margin:      0 0 6px 0;
+	font-size:   13px;
+	font-weight: 600;
+}
+
+.tm-progress-bar-wrapper {
+	width:         100%;
+	height:        10px;
+	background:    var(--tm-progress-track);
+	border-radius: 5px;
+	overflow:      hidden;
+}
+
+.tm-progress-bar {
+	width:      0%;
+	height:     100%;
+	background: var(--tm-progress-fill);
+	transition: width 0.3s ease;
 }

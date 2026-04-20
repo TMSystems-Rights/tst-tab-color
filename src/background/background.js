@@ -4,6 +4,13 @@
  * Tree Style Tab (TST) の External API を利用し、URLパターンに合致するタブの
  * 背景色・フォント色・フォントを TST サイドバー上で変更するバックグラウンド処理。
  * CSS を register-self で注入し、タブごとに add-tab-state で CSS クラスを付与する。
+ *
+ * 全タブ適用はバッチ方式（課題1 対応）：
+ *   1. タブを評価してルール別にバケット化（同期処理）
+ *   2. 全タブへ一括 remove-tab-state で旧クラスを除去（1回の送信）
+ *   3. ルールごとにマッチしたタブ ID 配列を add-tab-state でまとめて送信
+ *   （= 旧「タブ毎に remove/add を直列 await」から往復数を rules 数＋1 程度へ圧縮）
+ * 進捗は runtime.sendMessage で自身のポップアップ／オプションへブロードキャストする。
  */
 
 const TMS_BACKGROUND = {
@@ -23,7 +30,18 @@ const TMS_BACKGROUND = {
 		 * 機能設計書 §6.3「旧クラスをすべて除去」の要件を満たすためのゴースト防止用。
 		 * 単調非減少（max で更新）で、本セッション内でのみ有効。
 		 */
-		classCleanupCount: 0
+		classCleanupCount: 0,
+		/**
+		 * @type {object} 直近の進捗情報。ポップアップ／オプションページが開かれた時に
+		 * 現在状況を取得できるよう保持する。ApplyRulesToAllTabs の各フェーズで更新される。
+		 * stage:
+		 *   'idle'        … 処理なし（プログレスバー非表示）
+		 *   'classifying' … タブ評価中（current=評価済み件数 / total=タブ総数）
+		 *   'clearing'    … 旧クラス一括削除送信中
+		 *   'applying'    … ルール別 add-tab-state 送信中（current=完了ルール数 / total=ルール数）
+		 *   'completed'   … 完了（elapsedMs に所要時間 ms、total にタブ総数）
+		 */
+		progress:          { stage: 'idle', current: 0, total: 0, elapsedMs: 0 }
 	},
 
 	// ===================================================
@@ -95,7 +113,7 @@ const TMS_BACKGROUND = {
 	// ===================================================
 	Tst: {
 		/**
-		 * TST へ runtime.sendMessage を送るラッパー。TST 未インストール等のエラーは握りつぶす
+		 * TST へ runtime.sendMessage を送るラッパー。TST 未インストール時のエラーは握りつぶす
 		 * @param {object} payload - TST に送るメッセージ本体
 		 * @returns {Promise<*>} TST の応答（失敗時は null）
 		 */
@@ -211,6 +229,8 @@ const TMS_BACKGROUND = {
 		/**
 		 * タブに付与されている tm-rule-* クラスを TST から除去する。
 		 * 現状のルール数分のクラス名を remove-tab-state でまとめて削除する。
+		 * 単一タブ向け（新規タブ生成時・URL 更新時・ウィンドウ移動時の軽量経路用）。
+		 * 全タブ一括時は Tst.BatchRemoveAllClasses を使用する。
 		 * @param {number} tabId - 対象タブの ID
 		 * @returns {Promise<void>}
 		 */
@@ -239,6 +259,7 @@ const TMS_BACKGROUND = {
 		/**
 		 * 1タブに対してルール評価と CSS クラス適用を行う。
 		 * まず旧クラスを除去し、マッチするルールがあれば新クラスを付与する。
+		 * 新規タブ生成・URL 更新・別ウィンドウ移動時の単発経路用。
 		 * @param {browser.tabs.Tab} tab - 対象タブ
 		 * @returns {Promise<void>}
 		 */
@@ -260,24 +281,127 @@ const TMS_BACKGROUND = {
 		},
 
 		/**
-		 * 全タブに対してルール適用を行う
+		 * 進捗情報を State に格納し、自身の他コンテキスト（popup/options）へブロードキャストする。
+		 * 受信側が存在しない場合に runtime.sendMessage は reject されるため catch で握りつぶす。
+		 * @param {object} progress - 進捗情報（stage/current/total/elapsedMs 等）
+		 * @returns {Promise<void>}
+		 */
+		SendProgress: async function (progress) {
+			TMS_BACKGROUND.State.progress = progress;
+			try {
+				await browser.runtime.sendMessage({ type: 'tm-progress', payload: progress });
+			} catch {
+				// 受信側（ポップアップ／オプションページ）が未オープンの場合、
+				// Firefox は「Could not establish connection」で reject するため握りつぶす
+			}
+		},
+
+		/**
+		 * 全タブへのルール適用をバッチで実行する（課題1 パフォーマンス対策）。
+		 * 旧実装はタブ毎に remove-tab-state/add-tab-state を直列 await していたため、
+		 * 約 2,000 タブで 1 分半を要していた。本実装は往復数をルール数＋1 程度に圧縮する。
+		 *   Phase 1: 全タブを同期的に評価し、ルール別にタブ ID をバケット化
+		 *   Phase 2: 全タブへ一括 remove-tab-state（旧クラス除去）を 1 回送信
+		 *   Phase 3: ルールごとに該当タブ ID 配列を add-tab-state で 1 回ずつ送信
+		 * 各フェーズで進捗を SendProgress 経由でブロードキャストする。
 		 * @returns {Promise<void>}
 		 */
 		ApplyRulesToAllTabs: async function () {
-			const tabs = await browser.tabs.query({});
+			const startTime = performance.now();
+			const tabs      = await browser.tabs.query({});
+			const total     = tabs.length;
+			const rules     = TMS_BACKGROUND.State.rules;
+			const ruleCount = rules.length;
+			console.log('★★★★★タブ総数：', total, '／ルール数：', ruleCount);
 
-			const total = tabs.length;
-			console.log('★★★★★タブ総数：', total);
-			let count = 0;
-
-			for (const tab of tabs) {
-				await TMS_BACKGROUND.Tst.ApplyRuleToTab(tab);
-				count++;
-				if (count % 100 === 0) {
-					console.log('★★★★★進捗（完了タブ数/総数）：', count, '/', total);
+			// Phase 1: 評価バケット化（同期処理。ここは I/O なしで高速）
+			await TMS_BACKGROUND.Tst.SendProgress({
+				stage:     'classifying',
+				current:   0,
+				total:     total,
+				elapsedMs: 0
+			});
+			/** @type {Map<number, number[]>} ルール index → マッチしたタブ ID の配列 */
+			const buckets = new Map();
+			/** @type {number[]} 有効タブ ID の全リスト（remove-tab-state の送信先） */
+			const allTabIds = [];
+			for (let i = 0; i < tabs.length; i++) {
+				const tab = tabs[i];
+				if (!tab || typeof tab.id !== 'number') {
+					continue;
+				}
+				allTabIds.push(tab.id);
+				const match = TMS_BACKGROUND.Rules.MatchRule(tab.url, rules);
+				if (match) {
+					if (!buckets.has(match.index)) {
+						buckets.set(match.index, []);
+					}
+					buckets.get(match.index).push(tab.id);
 				}
 			}
-			console.log('★★★★★完了（完了タブ数/総数）：', count, '/', total);
+			await TMS_BACKGROUND.Tst.SendProgress({
+				stage:     'classifying',
+				current:   total,
+				total:     total,
+				elapsedMs: 0
+			});
+
+			// Phase 2: 全タブへ一括 remove-tab-state（旧クラスを全件除去）
+			// 現行ルール数と過去最大ルール件数の大きい方まで走査対象に含める。
+			await TMS_BACKGROUND.Tst.SendProgress({
+				stage:     'clearing',
+				current:   0,
+				total:     1,
+				elapsedMs: 0
+			});
+			if (allTabIds.length > 0) {
+				const cleanupCount = Math.max(ruleCount, TMS_BACKGROUND.State.classCleanupCount);
+				if (cleanupCount > 0) {
+					const classNames = [];
+					for (let i = 0; i < cleanupCount; i++) {
+						classNames.push(TMS_BACKGROUND.Rules.MakeClassName(i));
+					}
+					await TMS_BACKGROUND.Tst.SendMessage({
+						type:  'remove-tab-state',
+						tabs:  allTabIds,
+						state: classNames
+					});
+				}
+			}
+			await TMS_BACKGROUND.Tst.SendProgress({
+				stage:     'clearing',
+				current:   1,
+				total:     1,
+				elapsedMs: 0
+			});
+
+			// Phase 3: ルール毎に add-tab-state を 1 回ずつ送信
+			for (let i = 0; i < ruleCount; i++) {
+				await TMS_BACKGROUND.Tst.SendProgress({
+					stage:     'applying',
+					current:   i,
+					total:     ruleCount,
+					elapsedMs: 0
+				});
+				const tabIds = buckets.get(i);
+				if (tabIds && tabIds.length > 0) {
+					await TMS_BACKGROUND.Tst.SendMessage({
+						type:  'add-tab-state',
+						tabs:  tabIds,
+						state: TMS_BACKGROUND.Rules.MakeClassName(i)
+					});
+				}
+			}
+
+			// 完了通知。elapsedMs は整数丸めしてログと UI 表示の両方に使う
+			const elapsedMs = Math.round(performance.now() - startTime);
+			console.log('★★★★★完了（タブ総数／所要ms）：', total, '/', elapsedMs);
+			await TMS_BACKGROUND.Tst.SendProgress({
+				stage:     'completed',
+				current:   total,
+				total:     total,
+				elapsedMs: elapsedMs
+			});
 		}
 	},
 
@@ -340,11 +464,21 @@ const TMS_BACKGROUND = {
 		},
 
 		/**
-		 * browser.action.onClicked ハンドラ（ツールバーアイコンクリック）。
-		 * ポップアップではなくオプションページを開く
+		 * browser.runtime.onMessage ハンドラ（自身の他コンテキスト＝popup/options からのメッセージ）。
+		 * type='tm-get-progress' 受信時は State.progress を返す。
+		 * ポップアップ／オプションページが後から開かれた場合にも現在の進捗を復元できるよう、
+		 * sendResponse ではなく Promise を返すスタイルで実装する（Firefox MV3 推奨形式）。
+		 * @param {object} message - メッセージ本体
+		 * @returns {Promise<object>|undefined} 応答 Promise（type が未対応なら undefined）
 		 */
-		OnActionClicked: function () {
-			browser.runtime.openOptionsPage();
+		OnRuntimeMessage: function (message) {
+			if (!message || typeof message !== 'object') {
+				return undefined;
+			}
+			if (message.type === 'tm-get-progress') {
+				return Promise.resolve(TMS_BACKGROUND.State.progress);
+			}
+			return undefined;
 		},
 
 		/**
@@ -378,7 +512,7 @@ const TMS_BACKGROUND = {
 		browser.tabs.onUpdated.addListener(TMS_BACKGROUND.Handlers.OnTabUpdated);
 		browser.tabs.onAttached.addListener(TMS_BACKGROUND.Handlers.OnTabAttached);
 		browser.runtime.onMessageExternal.addListener(TMS_BACKGROUND.Handlers.OnTstMessage);
-		browser.action.onClicked.addListener(TMS_BACKGROUND.Handlers.OnActionClicked);
+		browser.runtime.onMessage.addListener(TMS_BACKGROUND.Handlers.OnRuntimeMessage);
 		browser.storage.onChanged.addListener(TMS_BACKGROUND.Handlers.OnStorageChanged);
 
 		// ルール読み込み → TST 登録 → 全タブ適用

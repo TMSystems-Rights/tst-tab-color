@@ -32,6 +32,17 @@
 
 		<main class="tm-main">
 			<!-- ========================================
+			     進捗バー（バックグラウンドからの tm-progress 通知で表示／更新）
+			     通常は非表示。全タブ適用中のみ ApplyRulesToAllTabs のフェーズに応じて可視化する。
+			     ======================================== -->
+			<section id="tmProgressContainer" class="tm-progress-container">
+				<p id="tmProgressText" class="tm-progress-text"></p>
+				<div class="tm-progress-bar-wrapper">
+					<div id="tmProgressBar" class="tm-progress-bar"></div>
+				</div>
+			</section>
+
+			<!-- ========================================
 			     ルール一覧
 			     ======================================== -->
 			<section class="tm-section">

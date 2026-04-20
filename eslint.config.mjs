@@ -41,6 +41,7 @@ export default [
 				TMS_COMMON:     'readonly',
 				TMS_BACKGROUND: 'readonly',
 				TMS_OPTIONS:    'readonly',
+				TMS_POPUP:      'readonly',
 				// common.js で定義され他の JS ファイルからも参照されるユーティリティ関数
 				DeepFreeze:     'readonly'
 			}

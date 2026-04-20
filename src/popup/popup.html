@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+	<head>
+		<meta charset="UTF-8" />
+		<!-- data-i18n は common.js の SetDocumentLocale() により textContent / document.title が上書きされる。
+		     既定テキストはフォールバック表示用に残してある。 -->
+		<title data-i18n="extName">TST タブカラー</title>
+		<link rel="icon" href="/icon/icon-48.png" />
+		<link rel="stylesheet" href="/popup/popup.css" />
+	</head>
+	<body>
+		<div class="tm-popup-root">
+			<header class="tm-popup-header">
+				<h1 data-i18n="extName">TST タブカラー</h1>
+			</header>
+
+			<!-- ========================================
+			     進捗表示エリア
+			     バックグラウンド側が ApplyRulesToAllTabs の各フェーズで
+			     runtime.sendMessage({ type: 'tm-progress', ... }) を送ってくる。
+			     stage='idle' または要素非表示でアイドル状態、それ以外で可視化する。
+			     ======================================== -->
+			<section id="tmProgressContainer" class="tm-progress-container">
+				<p id="tmProgressText" class="tm-progress-text"></p>
+				<div class="tm-progress-bar-wrapper">
+					<div id="tmProgressBar" class="tm-progress-bar"></div>
+				</div>
+			</section>
+
+			<!-- 進捗なし（idle）時に表示する案内テキスト -->
+			<p id="tmPopupIdleMsg" class="tm-popup-idle-msg" data-i18n="popupIdleMessage">現在処理中のタスクはありません。</p>
+
+			<!-- オプションページを開くボタン（ツールバーアイコン → ポップアップの主用途）-->
+			<div class="tm-popup-actions">
+				<button id="tmBtnOpenOptions" type="button" class="tm-btn-primary" data-i18n="popupOpenOptions">オプションを開く</button>
+			</div>
+		</div>
+
+		<!-- 共通定数・ユーティリティ（TMS_COMMON） -->
+		<script src="/common/common.js"></script>
+		<!-- ポップアップロジック（TMS_POPUP） -->
+		<script src="/popup/popup.js"></script>
+	</body>
+</html>

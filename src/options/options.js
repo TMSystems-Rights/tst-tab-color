@@ -69,6 +69,12 @@ const TMS_OPTIONS = {
 		sectionFormHeader: null,
 		/** @type {HTMLInputElement|null} テーマ切替スイッチ（checked=ダーク、unchecked=ライト） */
 		chkTheme:          null,
+		/** @type {HTMLElement|null} 進捗表示エリア（全タブ適用中のみ表示、stage=idle 時は非表示） */
+		progressContainer: null,
+		/** @type {HTMLElement|null} 進捗テキスト（ステージ別の説明文） */
+		progressText:      null,
+		/** @type {HTMLElement|null} 進捗バー（width を % で制御） */
+		progressBar:       null,
 
 		/**
 		 * DOM要素の参照を一括取得して各プロパティに格納する
@@ -89,6 +95,9 @@ const TMS_OPTIONS = {
 			this.ruleList          = document.getElementById('tmRuleList');
 			this.sectionFormHeader = document.getElementById('tmSectionFormHeader');
 			this.chkTheme          = document.getElementById('tmChkTheme');
+			this.progressContainer = document.getElementById('tmProgressContainer');
+			this.progressText      = document.getElementById('tmProgressText');
+			this.progressBar       = document.getElementById('tmProgressBar');
 		}
 	},
 
@@ -325,6 +334,53 @@ const TMS_OPTIONS = {
 				elems.sectionFormHeader.textContent = TMS_COMMON.Funcs.GetMsg('optionsAddRuleHeader');
 				elems.btnAdd.textContent            = TMS_COMMON.Funcs.GetMsg('optionsButtonRegister');
 			}
+		},
+
+		/**
+		 * バックグラウンドから受け取った進捗情報を進捗バー／テキストへ反映する。
+		 * stage に応じてバー全体に対する割合（%）を以下のように割り当てる：
+		 *   classifying   …  0〜 10%（タブ分類：同期処理で瞬時）
+		 *   clearing      … 10〜 20%（全タブ remove-tab-state 1 回）
+		 *   applying      … 20〜100%（ルール数に比例）
+		 *   completed     … 100% 固定
+		 *   idle          … エリアを非表示
+		 * @param {object} progress - { stage, current, total, elapsedMs }
+		 * @returns {void}
+		 */
+		UpdateProgress: function (progress) {
+			const E      = TMS_OPTIONS.Elements;
+			const getMsg = TMS_COMMON.Funcs.GetMsg;
+
+			if (!progress || progress.stage === 'idle') {
+				E.progressContainer.style.display = 'none';
+				E.progressBar.style.width         = '0%';
+				return;
+			}
+
+			E.progressContainer.style.display = 'block';
+
+			const current = typeof progress.current === 'number' ? progress.current : 0;
+			const total   = typeof progress.total   === 'number' ? progress.total   : 0;
+			let   ratio   = 0;
+			let   text    = '';
+
+			if (progress.stage === 'classifying') {
+				ratio = total > 0 ? (current / total) * 10 : 0;
+				text  = getMsg('progressClassifying', [String(current), String(total)]);
+			} else if (progress.stage === 'clearing') {
+				ratio = 10 + (total > 0 ? (current / total) * 10 : 0);
+				text  = getMsg('progressClearing');
+			} else if (progress.stage === 'applying') {
+				ratio = 20 + (total > 0 ? (current / total) * 80 : 0);
+				text  = getMsg('progressApplying', [String(current), String(total)]);
+			} else if (progress.stage === 'completed') {
+				ratio           = 100;
+				const elapsedMs = typeof progress.elapsedMs === 'number' ? progress.elapsedMs : 0;
+				text            = getMsg('progressCompleted', [String(total), String(elapsedMs)]);
+			}
+
+			E.progressBar.style.width  = ratio + '%';
+			E.progressText.textContent = text;
 		},
 
 		/**
@@ -641,6 +697,19 @@ const TMS_OPTIONS = {
 		},
 
 		/**
+		 * バックグラウンドから送られてくる runtime メッセージのハンドラ。
+		 * type='tm-progress' のみ処理し、UI.UpdateProgress へ委譲する。
+		 * @param {object} message - { type, payload }
+		 * @returns {void}
+		 */
+		OnRuntimeMessage: function (message) {
+			if (!message || message.type !== 'tm-progress') {
+				return;
+			}
+			TMS_OPTIONS.UI.UpdateProgress(message.payload);
+		},
+
+		/**
 		 * テーマ切替スイッチの change ハンドラ。
 		 * チェック状態に応じて State.theme を更新し、body クラスへ反映、
 		 * 最後に storage.local へ永続化する。
@@ -733,6 +802,18 @@ const TMS_OPTIONS = {
 
 		// 初期描画
 		TMS_OPTIONS.UI.RenderRuleList();
+
+		// バックグラウンドから現在の進捗状態を取得し初期表示に反映する。
+		// ページを後から開いた場合も、処理中なら進捗バーを続きから表示できる。
+		try {
+			const currentProgress = await browser.runtime.sendMessage({ type: 'tm-get-progress' });
+			TMS_OPTIONS.UI.UpdateProgress(currentProgress);
+		} catch {
+			// バックグラウンド未応答時は idle 扱い（HTML 既定で container は非表示）
+		}
+
+		// バックグラウンドからの継続進捗通知を購読
+		browser.runtime.onMessage.addListener(TMS_OPTIONS.Handlers.OnRuntimeMessage);
 
 		// ===== イベントバインド =====
 		const H     = TMS_OPTIONS.Handlers;

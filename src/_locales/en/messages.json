@@ -102,5 +102,41 @@
 	"optionsThemeDark": {
 		"message": "Dark",
 		"description": "Label for the \"Dark\" side of the theme toggle"
+	},
+	"popupOpenOptions": {
+		"message": "Open Options",
+		"description": "Popup: button to open the options page"
+	},
+	"popupIdleMessage": {
+		"message": "No tasks currently running.",
+		"description": "Popup: idle message shown when no progress is active"
+	},
+	"progressClassifying": {
+		"message": "Classifying tabs... ($loaded$ / $total$)",
+		"description": "Progress: bucketing all tabs by rule",
+		"placeholders": {
+			"loaded": { "content": "$1" },
+			"total":  { "content": "$2" }
+		}
+	},
+	"progressClearing": {
+		"message": "Removing previous classes...",
+		"description": "Progress: batch remove-tab-state over all tabs"
+	},
+	"progressApplying": {
+		"message": "Applying rules... ($loaded$ / $total$)",
+		"description": "Progress: sending add-tab-state per rule (completed rules / total rules)",
+		"placeholders": {
+			"loaded": { "content": "$1" },
+			"total":  { "content": "$2" }
+		}
+	},
+	"progressCompleted": {
+		"message": "Completed ($total$ tabs, $elapsed$ ms)",
+		"description": "Progress: all-tabs apply finished (total tabs and elapsed ms)",
+		"placeholders": {
+			"total":   { "content": "$1" },
+			"elapsed": { "content": "$2" }
+		}
 	}
 }

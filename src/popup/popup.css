@@ -1,0 +1,143 @@
+/* ==========================================================================
+ * tst-tab-color - popup.css
+ * ツールバーアイコンから開くポップアップのスタイル定義。
+ * テーマ変数は options.css と同様の変数名（--tm-*）を用いるが、
+ * ポップアップはシステムテーマ（prefers-color-scheme）に追従する簡易版とする。
+ * 進捗バー／スピナーは参考実装 tst-multi-function-exporter の viewer.css を踏襲。
+ * ========================================================================== */
+
+/* ==========================================================================
+ * テーマ変数（既定＝ダーク。prefers-color-scheme: light でライトへ切り替え）
+ * ========================================================================== */
+:root {
+	--tm-bg-page:             #333;
+	--tm-fg-page:             #ddd;
+	--tm-bg-surface:          #3b3b3b;
+	--tm-border-surface:      #555;
+	--tm-border-heading:      #4a90e2;
+	--tm-btn-primary-bg:      #4a90e2;
+	--tm-btn-primary-fg:      #fff;
+	--tm-btn-primary-border:  #4a90e2;
+	--tm-btn-primary-bg-hover:#357ab8;
+	--tm-progress-track:      #555;
+	--tm-progress-fill:       #4a90e2;
+	--tm-progress-text:       #ddd;
+	--tm-idle-msg:            #aaa;
+}
+
+@media (prefers-color-scheme: light) {
+	:root {
+		--tm-bg-page:             #fafafa;
+		--tm-fg-page:             #222;
+		--tm-bg-surface:          #fff;
+		--tm-border-surface:      #ddd;
+		--tm-border-heading:      #4a90e2;
+		--tm-btn-primary-bg:      #4a90e2;
+		--tm-btn-primary-fg:      #fff;
+		--tm-btn-primary-border:  #4a90e2;
+		--tm-btn-primary-bg-hover:#357ab8;
+		--tm-progress-track:      #ccc;
+		--tm-progress-fill:       #4a90e2;
+		--tm-progress-text:       #222;
+		--tm-idle-msg:            #888;
+	}
+}
+
+/* ==========================================================================
+ * 全体レイアウト
+ * ポップアップは固定幅（Firefox の既定幅に合わせて 320px）で表示する
+ * ========================================================================== */
+body {
+	margin:      0;
+	padding:     0;
+	width:       320px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", "Meiryo", sans-serif;
+	background:  var(--tm-bg-page);
+	color:       var(--tm-fg-page);
+	font-size:   13px;
+}
+
+.tm-popup-root {
+	padding: 12px 14px;
+}
+
+.tm-popup-header {
+	padding-bottom: 8px;
+	margin-bottom:  10px;
+	border-bottom:  2px solid var(--tm-border-heading);
+}
+
+.tm-popup-header h1 {
+	font-size: 15px;
+	margin:    0;
+}
+
+/* ==========================================================================
+ * 進捗バー（参考: tst-multi-function-exporter/src/viewer/viewer.css）
+ * JS で表示／非表示を切り替え、進捗中のみ可視化する。
+ * ========================================================================== */
+.tm-progress-container {
+	/* 表示制御は JS で行う（初期は非表示） */
+	display:    none;
+	margin:     8px 0 12px 0;
+	text-align: center;
+}
+
+.tm-progress-text {
+	color:         var(--tm-progress-text);
+	margin:        0 0 6px 0;
+	font-size:     12px;
+	/* 長いメッセージはポップアップ幅内に収める */
+	word-break:    break-word;
+}
+
+.tm-progress-bar-wrapper {
+	width:         100%;
+	height:        10px;
+	background:    var(--tm-progress-track);
+	border-radius: 5px;
+	overflow:      hidden;
+}
+
+.tm-progress-bar {
+	width:      0%;
+	height:     100%;
+	background: var(--tm-progress-fill);
+	transition: width 0.3s ease;
+}
+
+/* ==========================================================================
+ * アイドル時メッセージ
+ * 進捗表示がない時にユーザに「今は処理中ではない」ことを伝える短文
+ * ========================================================================== */
+.tm-popup-idle-msg {
+	display:    block; /* 初期は表示。進捗中は JS で非表示に */
+	margin:     8px 0 12px 0;
+	color:      var(--tm-idle-msg);
+	font-size:  12px;
+	text-align: center;
+}
+
+/* ==========================================================================
+ * ボタン
+ * ========================================================================== */
+.tm-popup-actions {
+	text-align: center;
+}
+
+.tm-btn-primary {
+	padding:       8px 16px;
+	font-size:     13px;
+	cursor:        pointer;
+	border:        1px solid var(--tm-btn-primary-border);
+	background:    var(--tm-btn-primary-bg);
+	color:         var(--tm-btn-primary-fg);
+	border-radius: 3px;
+	font-weight:   600;
+	width:         100%;
+	box-sizing:    border-box;
+}
+
+.tm-btn-primary:hover {
+	background: var(--tm-btn-primary-bg-hover);
+}

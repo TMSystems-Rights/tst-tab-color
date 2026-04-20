@@ -22,7 +22,8 @@
 	},
 	"action": {
 		"default_title": "__MSG_extName__",
-		"default_icon": "icon/icon-48.png"
+		"default_icon": "icon/icon-48.png",
+		"default_popup": "popup/popup.html"
 	},
 	"options_ui": {
 		"page": "options/options.html",

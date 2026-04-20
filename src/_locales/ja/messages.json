@@ -102,5 +102,41 @@
 	"optionsThemeDark": {
 		"message": "ダーク",
 		"description": "テーマ切替トグルの「ダーク」側ラベル"
+	},
+	"popupOpenOptions": {
+		"message": "オプションを開く",
+		"description": "ポップアップ内のオプションページ起動ボタン"
+	},
+	"popupIdleMessage": {
+		"message": "現在処理中のタスクはありません。",
+		"description": "ポップアップ：進捗中でない時のアイドル表示メッセージ"
+	},
+	"progressClassifying": {
+		"message": "タブを分類中… ($loaded$ / $total$)",
+		"description": "進捗：全タブをルール別にバケット化している最中の表示",
+		"placeholders": {
+			"loaded": { "content": "$1" },
+			"total":  { "content": "$2" }
+		}
+	},
+	"progressClearing": {
+		"message": "旧クラスを削除中…",
+		"description": "進捗：全タブから tm-rule-* クラスを一括除去中"
+	},
+	"progressApplying": {
+		"message": "ルールを適用中… ($loaded$ / $total$)",
+		"description": "進捗：ルール毎に add-tab-state を送信中（完了ルール数 / ルール総数）",
+		"placeholders": {
+			"loaded": { "content": "$1" },
+			"total":  { "content": "$2" }
+		}
+	},
+	"progressCompleted": {
+		"message": "完了（$total$ タブ、$elapsed$ ms）",
+		"description": "進捗：全タブ適用の完了表示（タブ総数と所要ミリ秒）",
+		"placeholders": {
+			"total":   { "content": "$1" },
+			"elapsed": { "content": "$2" }
+		}
 	}
 }
