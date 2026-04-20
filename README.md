@@ -6,17 +6,15 @@ URL パターン（前方一致・正規表現）に合致したタブへ、指�
 **A Firefox add-on that colorizes tabs in the Tree Style Tab (TST) sidebar based on URL patterns.**
 Apply your chosen font, font color, and background color to any tab whose URL matches a rule (prefix or regular expression) — updated live in the TST sidebar.
 
-### ＝＝＝ TST サイドバーの色付け例 ＝＝＝
-<!-- ここに画像を挿入（ルール適用後の TST サイドバー。色付けされたタブが並んでいる実例） -->
+### ＝＝＝ ルール設定画面（ダーク） ＝＝＝
+<img width="2255" height="1278" alt="image" src="https://github.com/user-attachments/assets/fc14203f-1c44-42fb-8fea-04dc482db926" />
+<img width="2255" height="1278" alt="image" src="https://github.com/user-attachments/assets/5fa885a2-f36d-4645-97f4-9c732a7a4d0c" />
 
 ### ＝＝＝ ルール設定画面（ライト） ＝＝＝
-<!-- ここに画像を挿入（オプションページ、ライトテーマ、ルール一覧＋追加フォーム） -->
-
-### ＝＝＝ ルール設定画面（ダーク） ＝＝＝
-<!-- ここに画像を挿入（オプションページ、ダークテーマ） -->
+<img width="2255" height="1278" alt="image" src="https://github.com/user-attachments/assets/129d72e4-6cfe-4b78-82a2-fb54a747064c" />
 
 ### ＝＝＝ ポップアップ（進捗表示） ＝＝＝
-<!-- ここに画像を挿入（ツールバーアイコンから開いたポップアップ。「完了（xxx タブ、xxx ms）」の表示状態） -->
+<img width="604" height="305" alt="image" src="https://github.com/user-attachments/assets/da94d404-8fc3-494b-a8f7-3c9ca30a32a5" />
 
 ---
 
