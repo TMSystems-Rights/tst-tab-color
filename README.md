@@ -76,8 +76,6 @@ Apply your chosen font, font color, and background color to any tab whose URL ma
 
 [製品ページ（こちらのリンクからアドオンをインストールできます）](https://addons.mozilla.org/ja/firefox/addon/tst-tab-color/)
 
-※ AMO への公開手続きに応じ、リンク先が有効になります。
-
 ---
 
 ## ライセンス (License)
