@@ -7,14 +7,18 @@ URL パターン（前方一致・正規表現）に合致したタブへ、指�
 Apply your chosen font, font color, and background color (with optional active/hover overrides and alpha transparency) to any tab whose URL matches a rule (prefix or regular expression) — updated live in the TST sidebar.
 
 ### ＝＝＝ ルール設定画面（ダーク） ＝＝＝
-<img width="2255" height="1278" alt="image" src="https://github.com/user-attachments/assets/fc14203f-1c44-42fb-8fea-04dc482db926" />
-<img width="2255" height="1278" alt="image" src="https://github.com/user-attachments/assets/5fa885a2-f36d-4645-97f4-9c732a7a4d0c" />
+追加モード：
+<img width="2496" height="1439" alt="image" src="https://github.com/user-attachments/assets/c1a7acee-c0ce-4032-a4f4-90de9fcb136b" />
+
+編集モード：
+<img width="2496" height="1439" alt="image" src="https://github.com/user-attachments/assets/c2ebc285-5a05-4e0c-8b24-ee51a3eab8de" />
 
 ### ＝＝＝ ルール設定画面（ライト） ＝＝＝
-<img width="2255" height="1278" alt="image" src="https://github.com/user-attachments/assets/129d72e4-6cfe-4b78-82a2-fb54a747064c" />
+編集モード：
+<img width="2496" height="1439" alt="image" src="https://github.com/user-attachments/assets/32895281-8cb8-40f3-9611-134cc26987bd" />
 
 ### ＝＝＝ ポップアップ（進捗表示） ＝＝＝
-<img width="604" height="305" alt="image" src="https://github.com/user-attachments/assets/da94d404-8fc3-494b-a8f7-3c9ca30a32a5" />
+<img width="576" height="297" alt="image" src="https://github.com/user-attachments/assets/57353b87-6025-4bc1-9007-4e79a59a6418" />
 
 ---
 
