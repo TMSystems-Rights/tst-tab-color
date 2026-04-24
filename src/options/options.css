@@ -312,7 +312,18 @@ body {
 	color:       var(--tm-drag-handle-fg);
 }
 
-/* ルール一覧セル内のカラースウォッチ */
+/* ルール一覧セル内のカラースウォッチ。
+ * α 付き色を視認できるよう、チェッカーボードを下層に敷き、色を上層に重ねる。
+ *
+ * 実装方針:
+ *   background-image は複数レイヤーを ', ' 区切りで指定でき、**先頭が最上層** に描画される。
+ *   先頭のレイヤーに CSS 変数 --tm-swatch-color の単色 linear-gradient を置き、
+ *   後続の 4 枚でチェッカー柄を構成する。色を JS 側で CSS 変数として注入する。
+ *   α=100% ⇒ 上層が不透明となりチェッカーを完全に隠す
+ *   α<100% ⇒ 下層のチェッカーが透過して見え、透過色であることが視覚的に伝わる
+ *
+ * 注意: 過去実装で ::before + z-index:-1 を用いたが、親背景より上層に合成されてしまい
+ *       チェッカーが常時可視となる不具合があったため、単一要素のマルチレイヤー方式に変更した。 */
 .tm-rule-color-swatch {
 	display:        inline-block;
 	width:          14px;
@@ -320,6 +331,37 @@ body {
 	border:         1px solid var(--tm-swatch-border);
 	vertical-align: middle;
 	margin-right:   4px;
+
+	background-image:
+		linear-gradient(var(--tm-swatch-color, transparent), var(--tm-swatch-color, transparent)),
+		linear-gradient(45deg, #888 25%, transparent 25%),
+		linear-gradient(-45deg, #888 25%, transparent 25%),
+		linear-gradient(45deg, transparent 75%, #888 75%),
+		linear-gradient(-45deg, transparent 75%, #888 75%);
+	background-size:
+		auto,
+		6px 6px, 6px 6px, 6px 6px, 6px 6px;
+	background-position:
+		0 0,
+		0 0, 0 3px, 3px -3px, -3px 0;
+}
+
+/* ルール一覧の色セル内2段（通常色 / アクティブ色）レイアウト。
+ * td に flex を直接当てるとテーブルレイアウトが崩れるため、
+ * 内部の div を block で並べて縦積みする構造にする。 */
+.tm-rule-color-cell {
+	font-size: 12px;
+}
+
+.tm-rule-color-row {
+	display:     block;
+	white-space: nowrap;
+	line-height: 1.5;
+}
+
+/* アクティブ色行をやや薄く表示（区別しやすく） */
+.tm-rule-color-row.tm-rule-color-active {
+	opacity: 0.75;
 }
 
 /* 編集ボタン（一覧行） — ニュートラル配色 */
@@ -395,11 +437,12 @@ body {
 	font-weight:  normal;
 }
 
-/* カラーピッカーとテキストボックスの横並び */
+/* カラーピッカーとテキストボックスの横並び（αスライダー追加） */
 .tm-color-group {
 	display:     flex;
 	align-items: center;
 	gap:         6px;
+	flex-wrap:   wrap;
 }
 
 .tm-color-picker {
@@ -409,6 +452,53 @@ body {
 	border:     1px solid var(--tm-border-input);
 	cursor:     pointer;
 	background: var(--tm-bg-input);
+}
+
+/* αスライダー */
+.tm-alpha-slider {
+	width:      80px;
+	height:     4px;
+	cursor:     pointer;
+	accent-color: var(--tm-btn-primary-bg);
+}
+
+/* α数値ラベル（"100%"等） */
+.tm-alpha-label {
+	font-size:   12px;
+	min-width:   36px;
+	color:       var(--tm-fg-page);
+	text-align:  right;
+	font-family: monospace;
+}
+
+/* ==========================================================================
+ * フォントプレビューエリア
+ * フォント欄に値が入力されている時のみ JS で表示する（初期: display:none）。
+ * tm-font-cell は grid 1列分の幅の中で input とプレビューを縦並びにラップするコンテナ。
+ * プレビュー要素を grid 直下に置くと、display:none 時にグリッドアイテムが抜けて
+ * 後続の入力欄が繰り上がりレイアウト崩れを起こすため、このラッパーで grid に影響を与えない構造とする。
+ * ========================================================================== */
+.tm-font-cell {
+	display:        flex;
+	flex-direction: column;
+	gap:            6px;
+}
+
+.tm-font-preview {
+	border:        1px solid var(--tm-border-surface);
+	border-radius: 3px;
+	background:    var(--tm-bg-surface);
+	padding:       8px 10px;
+	overflow:      auto;
+	max-height:    160px;
+}
+
+.tm-font-preview-text {
+	margin:      0;
+	font-size:   14px;
+	line-height: 1.6;
+	white-space: pre;
+	color:       var(--tm-fg-page);
 }
 
 /* ==========================================================================

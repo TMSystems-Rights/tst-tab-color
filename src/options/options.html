@@ -56,6 +56,7 @@
 							<th class="tm-col-font"       data-i18n="optionsLabelFontFamily">フォント</th>
 							<th class="tm-col-fontcolor"  data-i18n="optionsLabelFontColor">フォント色</th>
 							<th class="tm-col-bgcolor"    data-i18n="optionsLabelBgColor">背景色</th>
+							<!-- フォント色・背景色列は各セル内で通常色／アクティブ色を縦積み2段表示するため列追加なし -->
 							<th class="tm-col-edit"></th>
 							<th class="tm-col-delete"></th>
 						</tr>
@@ -88,20 +89,48 @@
 						</label>
 					</div>
 
+					<!-- フォント入力欄とプレビューを1つのグリッドセル内にまとめる。
+					     プレビューは JS で表示／非表示を切替えるが、セルそのものは常に存在するため
+					     display:none 時に後続のグリッドアイテムが繰り上がるレイアウト崩れを回避する。 -->
 					<label for="tmTxtFont" data-i18n="optionsLabelFontFamily">フォント</label>
-					<input type="text" id="tmTxtFont" class="tm-input-font" />
+					<div class="tm-font-cell">
+						<input type="text" id="tmTxtFont" class="tm-input-font" />
+						<div id="tmFontPreview" class="tm-font-preview" style="display:none;">
+							<pre id="tmFontPreviewText" class="tm-font-preview-text"></pre>
+						</div>
+					</div>
 
 					<label for="tmTxtFontColor" data-i18n="optionsLabelFontColor">フォント色</label>
 					<div class="tm-color-group">
-						<input type="text" id="tmTxtFontColor" class="tm-input-color" placeholder="#ffffff" />
+						<input type="text" id="tmTxtFontColor" class="tm-input-color" placeholder="#rrggbb" />
 						<!-- type=color の既定値は白。テキスト欄ブランク時の表示専用であり保存値はブランクのまま -->
 						<input type="color" id="tmColorFont" class="tm-color-picker" value="#ffffff" />
+						<input type="range" id="tmRangeFont" class="tm-alpha-slider" min="0" max="100" value="100" />
+						<span id="tmAlphaFontLabel" class="tm-alpha-label">100%</span>
 					</div>
 
 					<label for="tmTxtBgColor" data-i18n="optionsLabelBgColor">背景色</label>
 					<div class="tm-color-group">
-						<input type="text" id="tmTxtBgColor" class="tm-input-color" placeholder="#000000" />
+						<input type="text" id="tmTxtBgColor" class="tm-input-color" placeholder="#rrggbb" />
 						<input type="color" id="tmColorBg" class="tm-color-picker" value="#ffffff" />
+						<input type="range" id="tmRangeBg" class="tm-alpha-slider" min="0" max="100" value="100" />
+						<span id="tmAlphaBgLabel" class="tm-alpha-label">100%</span>
+					</div>
+
+					<label for="tmTxtActiveFontColor" data-i18n="optionsLabelActiveFontColor">アクティブ／ホバー時フォント色</label>
+					<div class="tm-color-group">
+						<input type="text" id="tmTxtActiveFontColor" class="tm-input-color" placeholder="#rrggbb" />
+						<input type="color" id="tmColorActiveFont" class="tm-color-picker" value="#ffffff" />
+						<input type="range" id="tmRangeActiveFont" class="tm-alpha-slider" min="0" max="100" value="100" />
+						<span id="tmAlphaActiveFontLabel" class="tm-alpha-label">100%</span>
+					</div>
+
+					<label for="tmTxtActiveBgColor" data-i18n="optionsLabelActiveBgColor">アクティブ／ホバー時背景色</label>
+					<div class="tm-color-group">
+						<input type="text" id="tmTxtActiveBgColor" class="tm-input-color" placeholder="#rrggbb" />
+						<input type="color" id="tmColorActiveBg" class="tm-color-picker" value="#ffffff" />
+						<input type="range" id="tmRangeActiveBg" class="tm-alpha-slider" min="0" max="100" value="100" />
+						<span id="tmAlphaActiveBgLabel" class="tm-alpha-label">100%</span>
 					</div>
 				</div>
 				<div class="tm-form-actions">

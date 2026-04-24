@@ -1,10 +1,10 @@
 # TST タブカラー (TST Tab Color)
 
 **Tree Style Tab (TST) のタブに、URL パターンで色付けできる Firefox 拡張機能です。**
-URL パターン（前方一致・正規表現）に合致したタブへ、指定したフォント・フォント色・背景色を TST サイドバー上でリアルタイム適用します。
+URL パターン（前方一致・正規表現）に合致したタブへ、指定したフォント・フォント色・背景色（アクティブ／ホバー時の色も個別指定可、透過度指定にも対応）を TST サイドバー上でリアルタイム適用します。
 
 **A Firefox add-on that colorizes tabs in the Tree Style Tab (TST) sidebar based on URL patterns.**
-Apply your chosen font, font color, and background color to any tab whose URL matches a rule (prefix or regular expression) — updated live in the TST sidebar.
+Apply your chosen font, font color, and background color (with optional active/hover overrides and alpha transparency) to any tab whose URL matches a rule (prefix or regular expression) — updated live in the TST sidebar.
 
 ### ＝＝＝ ルール設定画面（ダーク） ＝＝＝
 <img width="2255" height="1278" alt="image" src="https://github.com/user-attachments/assets/fc14203f-1c44-42fb-8fea-04dc482db926" />
@@ -33,12 +33,24 @@ Apply your chosen font, font color, and background color to any tab whose URL ma
     - タブの URL が設定済みパターンに一致した際、TST サイドバー上のそのタブへフォント・フォント色・背景色を適用します。
     - パターン種別は **前方一致** と **正規表現** の 2 種類をサポート。
     - 複数ルールが一致する場合はルール一覧上位（優先度が高い）のものが適用されます。
+- **アクティブ／ホバー時の色を個別指定 (Active / hover color overrides) — v1.1.0**
+    - 通常時とは別に、マウスホバー時・アクティブタブ時のフォント色と背景色を個別に指定できます。
+    - 未指定時は従来通りの自動反転（invert）挙動にフォールバックします。
+- **透過度（α）対応 (Alpha transparency) — v1.1.0**
+    - カラーコードに透過度指定が可能。`#rgb` / `#rgba` / `#rrggbb` / `#rrggbbaa` の 4 形式を受理。
+    - オプション画面にα スライダーを備え、テキスト欄・カラーピッカーと双方向連動します。
+    - TST 既定のタブ色と馴染ませたい場合に有効です。
+- **フォントプレビュー (Font preview) — v1.1.0**
+    - ルール追加／更新フォームでフォントを入力すると、指定フォントによるサンプル文をリアルタイム表示。
+    - ルール保存前に見た目を確認できます。
 - **リアルタイム反映 (Live update)**
     - タブ新規作成時、URL 変更（ナビゲーション）時に即座に再評価・再色付けします。
     - Firefox 起動時や TST 再ロード時も、既存の全タブに対して自動で色付けを再適用します。
 - **ルール設定画面 (Rule management)**
     - オプションページからルールを追加・編集・削除・並び替え可能。
     - 入力値はフォームでバリデーションされます（URL パターン未入力／正規表現構文エラー／カラーコード形式エラー／全スタイル未指定など）。
+    - ルール一覧はフォント色／背景色セルが 2 段構成で、通常色／アクティブ色をひと目で把握可能。透過色はチェッカー背景で視覚化されます。
+    - ルール一覧の「URL パターン」「フォント」列は省略表示時にホバーで全文をツールチップ表示。
     - ライト／ダークのテーマ切替を搭載。
 - **高速な一括適用 (Fast batch apply)**
     - タブを内部でバケット化し、`remove-tab-state` を 1 回 + ルールごとに `add-tab-state` 1 回というバッチ送信方式を採用。2,000 タブ規模でも 1 秒以内に完了します。
@@ -56,10 +68,13 @@ Apply your chosen font, font color, and background color to any tab whose URL ma
 3.  **「ルール追加」** セクションで下記を入力し **[新規登録]** を押すとルールが追加されます。
     - **URL パターン**（前方一致または正規表現）
     - **種別**（前方一致 / 正規表現）
-    - **フォント**（任意。例: `"Meiryo", sans-serif`）
-    - **フォント色**（任意。例: `#ffffff`）
-    - **背景色**（任意。例: `#1e3a8a`）
-    - ※ フォント・フォント色・背景色のいずれか1つ以上の指定が必須です。
+    - **フォント**（任意。例: `"Meiryo", sans-serif`）— 入力すると直下にプレビューが表示されます
+    - **フォント色**（任意。例: `#ffffff` / `#ffffff80`）
+    - **背景色**（任意。例: `#1e3a8a` / `#1e3a8a80`）
+    - **アクティブ／ホバー時フォント色**（任意。未指定時は自動反転挙動）
+    - **アクティブ／ホバー時背景色**（任意。未指定時は自動反転挙動）
+    - ※ カラーコードは `#rgb` / `#rgba` / `#rrggbb` / `#rrggbbaa` の 4 形式に対応。各色入力欄には α スライダーが付属しています。
+    - ※ フォント・フォント色・背景色・アクティブ時各色のいずれか1つ以上の指定が必須です。
 4.  登録したルールは **「ルール一覧」** に表示され、以下が可能です。
     - **[編集]** ボタンで内容を修正
     - **[削除]** ボタンで削除

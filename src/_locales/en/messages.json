@@ -84,7 +84,7 @@
 		"description": "Error: regular expression syntax is invalid"
 	},
 	"errorInvalidColor": {
-		"message": "Invalid color code format (e.g. #ff0000)",
+		"message": "Invalid color code format (e.g. #ff0000, #ff000080)",
 		"description": "Error: color code format is invalid"
 	},
 	"errorSaveFailed": {
@@ -138,5 +138,25 @@
 			"total":   { "content": "$1" },
 			"elapsed": { "content": "$2" }
 		}
+	},
+	"optionsLabelActiveFontColor": {
+		"message": "Active / Hover Font Color",
+		"description": "Label for the active/hover font color input"
+	},
+	"optionsLabelActiveBgColor": {
+		"message": "Active / Hover Background Color",
+		"description": "Label for the active/hover background color input"
+	},
+	"optionsLabelFontPreview": {
+		"message": "Font Preview",
+		"description": "Label for the font preview area"
+	},
+	"optionsLabelAlpha": {
+		"message": "Opacity",
+		"description": "Label for the alpha (opacity) slider"
+	},
+	"optionsFontPreviewSample": {
+		"message": "1234567890\nabcdefghij\nABCDEFGHIJ\n!@#$%^&*()\nThe quick brown fox\njumps over the lazy dog.\nHow does this font look?",
+		"description": "Sample text displayed in the font preview area"
 	}
 }

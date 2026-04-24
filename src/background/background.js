@@ -183,28 +183,45 @@ const TMS_BACKGROUND = {
 					lines.push(`${tabSel} .label { ${labelDecls.join(' ')} }`);
 				}
 
-				// :hover / :active 時のオーバーライド（bg 指定時のみ、fg 指定有無に依存しない）
-				if (rule.backgroundColor) {
-					const invBg     = invert(rule.backgroundColor);
+				// :hover / :active 時のオーバーライド
+				// 仕様書 §7.2: activeBackgroundColor / activeFontColor が指定されていれば優先し、
+				// 未指定時は既存の invert(bg) / bg フォールバック挙動を維持する
+				const hasBg      = !!rule.backgroundColor;
+				const hasActiveBg = !!rule.activeBackgroundColor;
+				const hasActiveFg = !!rule.activeFontColor;
+
+				if (hasBg || hasActiveBg || hasActiveFg) {
 					const hoverSel  = `${tabSel}:hover`;
 					const activeSel = `${tabSel}.active`;
 
-					// 背景 → 反転色
-					lines.push(
-						`${hoverSel} .background, ${activeSel} .background`
-						+ ` { background-color: ${invBg}; }`
-					);
-					// 前景 → 反転前の背景色。--tab-text を書き換えて
-					// .twisty（fill/background）と .closebox::after（background）に伝播させる
-					lines.push(
-						`${hoverSel}, ${activeSel}`
-						+ ` { --tab-text: ${rule.backgroundColor}; }`
-					);
-					// .label は TST 側の特異度の高いスタイルに負けないよう直接 color も指定
-					lines.push(
-						`${hoverSel} .label, ${activeSel} .label`
-						+ ` { color: ${rule.backgroundColor}; }`
-					);
+					// 背景色の決定
+					const hoverBg = hasActiveBg
+						? rule.activeBackgroundColor
+						: (hasBg ? invert(rule.backgroundColor) : null);
+
+					if (hoverBg) {
+						lines.push(
+							`${hoverSel} .background, ${activeSel} .background`
+							+ ` { background-color: ${hoverBg}; }`
+						);
+					}
+
+					// 前景色の決定
+					// activeFontColor 指定時はそれを使う。なければ backgroundColor をフォールバック（既存挙動）
+					const hoverFg = hasActiveFg
+						? rule.activeFontColor
+						: (hasBg ? rule.backgroundColor : null);
+
+					if (hoverFg) {
+						lines.push(
+							`${hoverSel}, ${activeSel}`
+							+ ` { --tab-text: ${hoverFg}; }`
+						);
+						lines.push(
+							`${hoverSel} .label, ${activeSel} .label`
+							+ ` { color: ${hoverFg}; }`
+						);
+					}
 				}
 			}
 			return lines.join('\n');

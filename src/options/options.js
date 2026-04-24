@@ -50,13 +50,41 @@ const TMS_OPTIONS = {
 		/** @type {HTMLInputElement|null} フォント名テキストボックス */
 		txtFont:           null,
 		/** @type {HTMLInputElement|null} フォント色テキストボックス */
-		txtFontColor:      null,
+		txtFontColor:           null,
 		/** @type {HTMLInputElement|null} フォント色カラーピッカー */
-		colorFont:         null,
+		colorFont:              null,
+		/** @type {HTMLInputElement|null} フォント色αスライダー */
+		rangeFont:              null,
+		/** @type {HTMLElement|null} フォント色α数値ラベル */
+		alphaFontLabel:         null,
 		/** @type {HTMLInputElement|null} 背景色テキストボックス */
-		txtBgColor:        null,
+		txtBgColor:             null,
 		/** @type {HTMLInputElement|null} 背景色カラーピッカー */
-		colorBg:           null,
+		colorBg:                null,
+		/** @type {HTMLInputElement|null} 背景色αスライダー */
+		rangeBg:                null,
+		/** @type {HTMLElement|null} 背景色α数値ラベル */
+		alphaBgLabel:           null,
+		/** @type {HTMLInputElement|null} アクティブ時フォント色テキストボックス */
+		txtActiveFontColor:     null,
+		/** @type {HTMLInputElement|null} アクティブ時フォント色カラーピッカー */
+		colorActiveFont:        null,
+		/** @type {HTMLInputElement|null} アクティブ時フォント色αスライダー */
+		rangeActiveFont:        null,
+		/** @type {HTMLElement|null} アクティブ時フォント色α数値ラベル */
+		alphaActiveFontLabel:   null,
+		/** @type {HTMLInputElement|null} アクティブ時背景色テキストボックス */
+		txtActiveBgColor:       null,
+		/** @type {HTMLInputElement|null} アクティブ時背景色カラーピッカー */
+		colorActiveBg:          null,
+		/** @type {HTMLInputElement|null} アクティブ時背景色αスライダー */
+		rangeActiveBg:          null,
+		/** @type {HTMLElement|null} アクティブ時背景色α数値ラベル */
+		alphaActiveBgLabel:     null,
+		/** @type {HTMLElement|null} フォントプレビューエリア */
+		fontPreview:            null,
+		/** @type {HTMLElement|null} フォントプレビューテキスト */
+		fontPreviewText:        null,
 		/** @type {HTMLButtonElement|null} 主ボタン（追加モード=「新規登録」／更新モード=「更新」） */
 		btnAdd:            null,
 		/** @type {HTMLButtonElement|null} キャンセルボタン */
@@ -81,23 +109,37 @@ const TMS_OPTIONS = {
 		 * @returns {void}
 		 */
 		Init: function () {
-			this.txtPattern        = document.getElementById('tmTxtPattern');
-			this.radPrefix         = document.getElementById('tmRadPrefix');
-			this.radRegexp         = document.getElementById('tmRadRegexp');
-			this.txtFont           = document.getElementById('tmTxtFont');
-			this.txtFontColor      = document.getElementById('tmTxtFontColor');
-			this.colorFont         = document.getElementById('tmColorFont');
-			this.txtBgColor        = document.getElementById('tmTxtBgColor');
-			this.colorBg           = document.getElementById('tmColorBg');
-			this.btnAdd            = document.getElementById('tmBtnAdd');
-			this.btnCancel         = document.getElementById('tmBtnCancel');
-			this.msgError          = document.getElementById('tmMsgError');
-			this.ruleList          = document.getElementById('tmRuleList');
-			this.sectionFormHeader = document.getElementById('tmSectionFormHeader');
-			this.chkTheme          = document.getElementById('tmChkTheme');
-			this.progressContainer = document.getElementById('tmProgressContainer');
-			this.progressText      = document.getElementById('tmProgressText');
-			this.progressBar       = document.getElementById('tmProgressBar');
+			this.txtPattern           = document.getElementById('tmTxtPattern');
+			this.radPrefix            = document.getElementById('tmRadPrefix');
+			this.radRegexp            = document.getElementById('tmRadRegexp');
+			this.txtFont              = document.getElementById('tmTxtFont');
+			this.txtFontColor         = document.getElementById('tmTxtFontColor');
+			this.colorFont            = document.getElementById('tmColorFont');
+			this.rangeFont            = document.getElementById('tmRangeFont');
+			this.alphaFontLabel       = document.getElementById('tmAlphaFontLabel');
+			this.txtBgColor           = document.getElementById('tmTxtBgColor');
+			this.colorBg              = document.getElementById('tmColorBg');
+			this.rangeBg              = document.getElementById('tmRangeBg');
+			this.alphaBgLabel         = document.getElementById('tmAlphaBgLabel');
+			this.txtActiveFontColor   = document.getElementById('tmTxtActiveFontColor');
+			this.colorActiveFont      = document.getElementById('tmColorActiveFont');
+			this.rangeActiveFont      = document.getElementById('tmRangeActiveFont');
+			this.alphaActiveFontLabel = document.getElementById('tmAlphaActiveFontLabel');
+			this.txtActiveBgColor     = document.getElementById('tmTxtActiveBgColor');
+			this.colorActiveBg        = document.getElementById('tmColorActiveBg');
+			this.rangeActiveBg        = document.getElementById('tmRangeActiveBg');
+			this.alphaActiveBgLabel   = document.getElementById('tmAlphaActiveBgLabel');
+			this.fontPreview          = document.getElementById('tmFontPreview');
+			this.fontPreviewText      = document.getElementById('tmFontPreviewText');
+			this.btnAdd               = document.getElementById('tmBtnAdd');
+			this.btnCancel            = document.getElementById('tmBtnCancel');
+			this.msgError             = document.getElementById('tmMsgError');
+			this.ruleList             = document.getElementById('tmRuleList');
+			this.sectionFormHeader    = document.getElementById('tmSectionFormHeader');
+			this.chkTheme             = document.getElementById('tmChkTheme');
+			this.progressContainer    = document.getElementById('tmProgressContainer');
+			this.progressText         = document.getElementById('tmProgressText');
+			this.progressBar          = document.getElementById('tmProgressBar');
 		}
 	},
 
@@ -127,7 +169,7 @@ const TMS_OPTIONS = {
 		},
 
 		/**
-		 * カラーコードの形式チェック。#rgb / #rrggbb のみ許容。ブランクは有効として扱う
+		 * カラーコードの形式チェック。#rgb / #rgba / #rrggbb / #rrggbbaa の 4 形式を許容。ブランクは有効
 		 * @param {string} value - カラーコード文字列（空文字可）
 		 * @returns {boolean} true: 有効 / false: 不正
 		 */
@@ -135,18 +177,80 @@ const TMS_OPTIONS = {
 			if (value === '' || value === null || value === undefined) {
 				return true;
 			}
-			return /^#[0-9a-fA-F]{3}(?:[0-9a-fA-F]{3})?$/.test(value);
+			return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{4}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(value);
 		},
 
 		/**
-		 * #rgb 形式を #rrggbb 形式へ正規化する（カラーピッカーが #rgb を受理しないため）。
-		 * 既に #rrggbb または不正値の場合は元の値をそのまま返す。
-		 * @param {string} value - カラーコード文字列
-		 * @returns {string} 正規化後のカラーコード
+		 * カラーコードの RGB 部分のみを #rrggbb 形式で返す（カラーピッカー設定用）。
+		 * #rgb / #rgba → #rrggbb、#rrggbb / #rrggbbaa → #rrggbb（上位6桁）。不正値はそのまま返す。
+		 * @param {string} value - カラーコード文字列（4 形式いずれか）
+		 * @returns {string} #rrggbb 形式の RGB 部分
 		 */
 		NormalizeColorToHex6: function (value) {
-			const m = String(value).match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
-			return m ? ('#' + m[1] + m[1] + m[2] + m[2] + m[3] + m[3]) : value;
+			const s  = String(value);
+			// #rgb / #rgba → #rrggbb
+			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/);
+			if (m3 && (s.length === 4 || s.length === 5)) {
+				return '#' + m3[1]+m3[1] + m3[2]+m3[2] + m3[3]+m3[3];
+			}
+			// #rrggbb / #rrggbbaa → 上位6桁
+			const m6 = s.match(/^#([0-9a-fA-F]{6})/);
+			return m6 ? ('#' + m6[1]) : value;
+		},
+
+		/**
+		 * カラーコードを #rrggbbaa 形式へ正規化する（内部処理用）。
+		 * α 未指定（3/6 桁）の場合は ff（不透明）を補完する。不正値はそのまま返す。
+		 * @param {string} value - カラーコード文字列（4 形式いずれか）
+		 * @returns {string} #rrggbbaa 形式
+		 */
+		NormalizeColorToHex8: function (value) {
+			const s  = String(value);
+			// #rgb → #rrggbbff
+			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
+			if (m3) { return '#' + m3[1]+m3[1] + m3[2]+m3[2] + m3[3]+m3[3] + 'ff'; }
+			// #rgba → #rrggbbaa
+			const m4 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
+			if (m4) { return '#' + m4[1]+m4[1] + m4[2]+m4[2] + m4[3]+m4[3] + m4[4]+m4[4]; }
+			// #rrggbb → #rrggbbff
+			const m6 = s.match(/^#([0-9a-fA-F]{6})$/);
+			if (m6) { return '#' + m6[1] + 'ff'; }
+			// #rrggbbaa → そのまま
+			if (/^#[0-9a-fA-F]{8}$/.test(s)) { return s; }
+			return value;
+		},
+
+		/**
+		 * カラーコードからアルファ値（0〜100 の整数 %）を取り出す。
+		 * α なし（#rgb / #rrggbb）は 100 を返す。
+		 * @param {string} value - カラーコード文字列（4 形式いずれか）
+		 * @returns {number} 0〜100 の整数
+		 */
+		ExtractAlpha: function (value) {
+			const s  = String(value);
+			// #rgba
+			const m4 = s.match(/^#[0-9a-fA-F]{3}([0-9a-fA-F])$/);
+			if (m4) { return Math.round(parseInt(m4[1]+m4[1], 16) / 255 * 100); }
+			// #rrggbbaa
+			const m8 = s.match(/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})$/);
+			if (m8) { return Math.round(parseInt(m8[1], 16) / 255 * 100); }
+			return 100;
+		},
+
+		/**
+		 * RGB（#rrggbb）とアルファ（0〜100 の整数 %）からカラーコードを組み立てる。
+		 * α=100 の場合は #rrggbb（6桁）、未満は #rrggbbaa（8桁）を返す。
+		 * @param {string} rgb6 - #rrggbb 形式の 6 桁カラーコード
+		 * @param {number} alphaPct - 0〜100 の整数
+		 * @returns {string} #rrggbb または #rrggbbaa
+		 */
+		BuildColorWithAlpha: function (rgb6, alphaPct) {
+			const pct = Math.max(0, Math.min(100, Math.round(alphaPct)));
+			if (pct >= 100) {
+				return rgb6;
+			}
+			const aa = Math.round(pct / 100 * 255).toString(16).padStart(2, '0');
+			return rgb6 + aa;
 		}
 	},
 
@@ -190,35 +294,65 @@ const TMS_OPTIONS = {
 			// ドラッグハンドル列
 			$tr.append($('<td>').addClass('tm-drag-handle').text('≡'));
 
-			// URLパターン列
-			$tr.append($('<td>').text(rule.pattern || ''));
+			// URLパターン列（列幅超過時は CSS で省略記号 "..." 表示。
+			// 省略された文字列をホバーで全体確認できるよう title 属性で標準ツールチップを出す）
+			const pattern  = rule.pattern || '';
+			const $tdPattern = $('<td>').text(pattern);
+			if (pattern) {
+				$tdPattern.attr('title', pattern);
+			}
+			$tr.append($tdPattern);
 
 			// 種別列（i18n 経由で localized 文字列を取得）
 			const typeKey   = (rule.patternType === 'prefix') ? 'optionsLabelPrefix' : 'optionsLabelRegexp';
 			const typeLabel = TMS_COMMON.Funcs.GetMsg(typeKey);
 			$tr.append($('<td>').text(typeLabel));
 
-			// フォント列
-			$tr.append($('<td>').text(rule.fontFamily || ''));
-
-			// フォント色列（スウォッチ＋コード）
-			const $fontColorCell = $('<td>');
-			if (rule.fontColor) {
-				$fontColorCell.append(
-					$('<span>').addClass('tm-rule-color-swatch').css('background-color', rule.fontColor)
-				);
-				$fontColorCell.append(document.createTextNode(rule.fontColor));
+			// フォント列（URLパターン列と同じくホバーで全体を確認できるよう title 属性を付与）
+			const fontFamily = rule.fontFamily || '';
+			const $tdFont    = $('<td>').text(fontFamily);
+			if (fontFamily) {
+				$tdFont.attr('title', fontFamily);
 			}
+			$tr.append($tdFont);
+
+			// スウォッチを生成するヘルパー。CSS 変数 --tm-swatch-color に色を注入することで、
+			// CSS 側の multi-layer background（色レイヤー + チェッカーレイヤー）の色部分を切り替える。
+			// jQuery .css() は CSS カスタムプロパティに対応していないため setProperty を使用する。
+			const makeSwatch = (color) => {
+				const $span = $('<span>').addClass('tm-rule-color-swatch');
+				$span[0].style.setProperty('--tm-swatch-color', color);
+				return $span;
+			};
+
+			// フォント色列（通常色 / アクティブ色 の2段表示）
+			const $fontColorCell  = $('<td>').addClass('tm-rule-color-cell');
+			const $fcNormal       = $('<div>').addClass('tm-rule-color-row');
+			const $fcActive       = $('<div>').addClass('tm-rule-color-row tm-rule-color-active');
+			if (rule.fontColor) {
+				$fcNormal.append(makeSwatch(rule.fontColor));
+				$fcNormal.append(document.createTextNode(rule.fontColor));
+			}
+			if (rule.activeFontColor) {
+				$fcActive.append(makeSwatch(rule.activeFontColor));
+				$fcActive.append(document.createTextNode(rule.activeFontColor));
+			}
+			$fontColorCell.append($fcNormal, $fcActive);
 			$tr.append($fontColorCell);
 
-			// 背景色列（スウォッチ＋コード）
-			const $bgColorCell = $('<td>');
+			// 背景色列（通常色 / アクティブ色 の2段表示）
+			const $bgColorCell  = $('<td>').addClass('tm-rule-color-cell');
+			const $bgNormal     = $('<div>').addClass('tm-rule-color-row');
+			const $bgActive     = $('<div>').addClass('tm-rule-color-row tm-rule-color-active');
 			if (rule.backgroundColor) {
-				$bgColorCell.append(
-					$('<span>').addClass('tm-rule-color-swatch').css('background-color', rule.backgroundColor)
-				);
-				$bgColorCell.append(document.createTextNode(rule.backgroundColor));
+				$bgNormal.append(makeSwatch(rule.backgroundColor));
+				$bgNormal.append(document.createTextNode(rule.backgroundColor));
 			}
+			if (rule.activeBackgroundColor) {
+				$bgActive.append(makeSwatch(rule.activeBackgroundColor));
+				$bgActive.append(document.createTextNode(rule.activeBackgroundColor));
+			}
+			$bgColorCell.append($bgNormal, $bgActive);
 			$tr.append($bgColorCell);
 
 			// 編集ボタン列
@@ -244,6 +378,24 @@ const TMS_OPTIONS = {
 			);
 
 			return $tr;
+		},
+
+		/**
+		 * フォントプレビューを更新する。フォント欄に値がある場合のみ表示する。
+		 * @returns {void}
+		 */
+		UpdateFontPreview: function () {
+			const E          = TMS_OPTIONS.Elements;
+			const fontFamily = (E.txtFont.value || '').trim();
+
+			if (!fontFamily) {
+				E.fontPreview.style.display = 'none';
+				return;
+			}
+
+			E.fontPreviewText.style.fontFamily = fontFamily;
+			E.fontPreviewText.textContent      = TMS_COMMON.Funcs.GetMsg('optionsFontPreviewSample');
+			E.fontPreview.style.display        = 'block';
 		},
 
 		/**
@@ -280,20 +432,38 @@ const TMS_OPTIONS = {
 		 * @returns {void}
 		 */
 		ClearForm: function () {
-			const elems              = TMS_OPTIONS.Elements;
+			const elems = TMS_OPTIONS.Elements;
+
 			elems.txtPattern.value   = '';
 			elems.radPrefix.checked  = true;
 			elems.radRegexp.checked  = false;
 			elems.txtFont.value      = '';
 			elems.txtFontColor.value = '';
 			elems.colorFont.value    = '#ffffff';
+			elems.rangeFont.value    = '100';
+			elems.alphaFontLabel.textContent = '100%';
 			elems.txtBgColor.value   = '';
 			elems.colorBg.value      = '#ffffff';
+			elems.rangeBg.value      = '100';
+			elems.alphaBgLabel.textContent = '100%';
+			elems.txtActiveFontColor.value = '';
+			elems.colorActiveFont.value    = '#ffffff';
+			elems.rangeActiveFont.value    = '100';
+			elems.alphaActiveFontLabel.textContent = '100%';
+			elems.txtActiveBgColor.value   = '';
+			elems.colorActiveBg.value      = '#ffffff';
+			elems.rangeActiveBg.value      = '100';
+			elems.alphaActiveBgLabel.textContent = '100%';
 
-			// 不正表示用の赤枠もまとめて解除
+			// プレビュー非表示
+			elems.fontPreview.style.display = 'none';
+
+			// 赤枠解除
 			$(elems.txtPattern).removeClass('tm-invalid');
 			$(elems.txtFontColor).removeClass('tm-invalid');
 			$(elems.txtBgColor).removeClass('tm-invalid');
+			$(elems.txtActiveFontColor).removeClass('tm-invalid');
+			$(elems.txtActiveBgColor).removeClass('tm-invalid');
 		},
 
 		/**
@@ -303,21 +473,56 @@ const TMS_OPTIONS = {
 		 * @returns {void}
 		 */
 		PopulateFormFromRule: function (rule) {
-			const elems              = TMS_OPTIONS.Elements;
-			const normalize          = TMS_OPTIONS.Validation.NormalizeColorToHex6;
-			elems.txtPattern.value   = rule.pattern || '';
-			elems.radPrefix.checked  = (rule.patternType === 'prefix');
-			elems.radRegexp.checked  = (rule.patternType === 'regexp');
-			elems.txtFont.value      = rule.fontFamily || '';
-			elems.txtFontColor.value = rule.fontColor || '';
-			elems.colorFont.value    = rule.fontColor ? normalize(rule.fontColor) : '#ffffff';
-			elems.txtBgColor.value   = rule.backgroundColor || '';
-			elems.colorBg.value      = rule.backgroundColor ? normalize(rule.backgroundColor) : '#ffffff';
+			const elems       = TMS_OPTIONS.Elements;
+			const toHex6      = TMS_OPTIONS.Validation.NormalizeColorToHex6;
+			const extractAlpha = TMS_OPTIONS.Validation.ExtractAlpha;
+
+			elems.txtPattern.value = rule.pattern || '';
+			elems.radPrefix.checked = (rule.patternType === 'prefix');
+			elems.radRegexp.checked = (rule.patternType === 'regexp');
+			elems.txtFont.value     = rule.fontFamily || '';
+
+			// フォント色
+			const fc = rule.fontColor || '';
+			elems.txtFontColor.value = fc;
+			elems.colorFont.value    = fc ? toHex6(fc) : '#ffffff';
+			const fcA = fc ? extractAlpha(fc) : 100;
+			elems.rangeFont.value              = String(fcA);
+			elems.alphaFontLabel.textContent   = fcA + '%';
+
+			// 背景色
+			const bc = rule.backgroundColor || '';
+			elems.txtBgColor.value = bc;
+			elems.colorBg.value    = bc ? toHex6(bc) : '#ffffff';
+			const bcA = bc ? extractAlpha(bc) : 100;
+			elems.rangeBg.value             = String(bcA);
+			elems.alphaBgLabel.textContent  = bcA + '%';
+
+			// アクティブ時フォント色
+			const afc = rule.activeFontColor || '';
+			elems.txtActiveFontColor.value = afc;
+			elems.colorActiveFont.value    = afc ? toHex6(afc) : '#ffffff';
+			const afcA = afc ? extractAlpha(afc) : 100;
+			elems.rangeActiveFont.value              = String(afcA);
+			elems.alphaActiveFontLabel.textContent   = afcA + '%';
+
+			// アクティブ時背景色
+			const abc = rule.activeBackgroundColor || '';
+			elems.txtActiveBgColor.value = abc;
+			elems.colorActiveBg.value    = abc ? toHex6(abc) : '#ffffff';
+			const abcA = abc ? extractAlpha(abc) : 100;
+			elems.rangeActiveBg.value              = String(abcA);
+			elems.alphaActiveBgLabel.textContent   = abcA + '%';
+
+			// フォントプレビュー更新
+			TMS_OPTIONS.UI.UpdateFontPreview();
 
 			// 赤枠を解除（過去の不正入力履歴を持ち越さない）
 			$(elems.txtPattern).removeClass('tm-invalid');
 			$(elems.txtFontColor).removeClass('tm-invalid');
 			$(elems.txtBgColor).removeClass('tm-invalid');
+			$(elems.txtActiveFontColor).removeClass('tm-invalid');
+			$(elems.txtActiveBgColor).removeClass('tm-invalid');
 		},
 
 		/**
@@ -446,9 +651,11 @@ const TMS_OPTIONS = {
 			}
 			$(elems.txtPattern).removeClass('tm-invalid');
 
-			// フォント色・背景色のバリデーション（ブランクは有効）
-			const fontColor = elems.txtFontColor.value.trim();
-			const bgColor   = elems.txtBgColor.value.trim();
+			// フォント色・背景色・アクティブ色のバリデーション（ブランクは有効）
+			const fontColor        = elems.txtFontColor.value.trim();
+			const bgColor          = elems.txtBgColor.value.trim();
+			const activeFontColor  = elems.txtActiveFontColor.value.trim();
+			const activeBgColor    = elems.txtActiveBgColor.value.trim();
 			if (!TMS_OPTIONS.Validation.ValidateColor(fontColor)) {
 				$(elems.txtFontColor).addClass('tm-invalid');
 				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorInvalidColor'));
@@ -459,10 +666,20 @@ const TMS_OPTIONS = {
 				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorInvalidColor'));
 				return;
 			}
+			if (!TMS_OPTIONS.Validation.ValidateColor(activeFontColor)) {
+				$(elems.txtActiveFontColor).addClass('tm-invalid');
+				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorInvalidColor'));
+				return;
+			}
+			if (!TMS_OPTIONS.Validation.ValidateColor(activeBgColor)) {
+				$(elems.txtActiveBgColor).addClass('tm-invalid');
+				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorInvalidColor'));
+				return;
+			}
 
 			const fontFamily = elems.txtFont.value.trim();
-			// 全スタイル項目が空の場合はブロック（機能設計書 §8.4 Phase 7：登録／更新不可）
-			if (fontFamily === '' && fontColor === '' && bgColor === '') {
+			// 全スタイル項目が空の場合はブロック（アクティブ色のみ指定も可）
+			if (fontFamily === '' && fontColor === '' && bgColor === '' && activeFontColor === '' && activeBgColor === '') {
 				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorNoStyle'));
 				return;
 			}
@@ -481,12 +698,14 @@ const TMS_OPTIONS = {
 					return;
 				}
 				rules[idx] = {
-					id:              rules[idx].id,
-					pattern:         pattern,
-					patternType:     type,
-					fontFamily:      fontFamily,
-					fontColor:       fontColor,
-					backgroundColor: bgColor
+					id:                    rules[idx].id,
+					pattern:               pattern,
+					patternType:           type,
+					fontFamily:            fontFamily,
+					fontColor:             fontColor,
+					backgroundColor:       bgColor,
+					activeFontColor:       activeFontColor,
+					activeBackgroundColor: activeBgColor
 				};
 				// 更新完了で追加モードへ戻す
 				TMS_OPTIONS.State.mode            = 'add';
@@ -497,12 +716,14 @@ const TMS_OPTIONS = {
 			} else {
 				// 追加モード：新規ルールを末尾に追加（id は UUID を採番）
 				const newRule = {
-					id:              TMS_COMMON.Funcs.GenerateUUID(),
-					pattern:         pattern,
-					patternType:     type,
-					fontFamily:      fontFamily,
-					fontColor:       fontColor,
-					backgroundColor: bgColor
+					id:                    TMS_COMMON.Funcs.GenerateUUID(),
+					pattern:               pattern,
+					patternType:           type,
+					fontFamily:            fontFamily,
+					fontColor:             fontColor,
+					backgroundColor:       bgColor,
+					activeFontColor:       activeFontColor,
+					activeBackgroundColor: activeBgColor
 				};
 				TMS_OPTIONS.State.rules.push(newRule);
 				TMS_OPTIONS.UI.ClearForm();
@@ -529,12 +750,14 @@ const TMS_OPTIONS = {
 			TMS_OPTIONS.State.editingIndex = index;
 			// 変更前の値を深さ 1 のコピーとして保持（プリミティブのみのため shallow で十分）
 			TMS_OPTIONS.State.editingSnapshot = {
-				id:              rule.id,
-				pattern:         rule.pattern,
-				patternType:     rule.patternType,
-				fontFamily:      rule.fontFamily,
-				fontColor:       rule.fontColor,
-				backgroundColor: rule.backgroundColor
+				id:                    rule.id,
+				pattern:               rule.pattern,
+				patternType:           rule.patternType,
+				fontFamily:            rule.fontFamily,
+				fontColor:             rule.fontColor,
+				backgroundColor:       rule.backgroundColor,
+				activeFontColor:       rule.activeFontColor       || '',
+				activeBackgroundColor: rule.activeBackgroundColor || ''
 			};
 
 			TMS_OPTIONS.UI.PopulateFormFromRule(rule);
@@ -676,23 +899,31 @@ const TMS_OPTIONS = {
 
 		/**
 		 * カラーピッカーの変更ハンドラ（機能設計書 §8.2）。
-		 * ピッカーで選ばれた色をテキストボックスに反映する
+		 * ピッカーで選ばれた RGB をテキストボックスに反映する。既存のαは維持する。
 		 * @param {JQuery.TriggeredEvent} e - input イベント
 		 * @returns {void}
 		 */
 		OnColorPickerChange: function (e) {
 			// ピッカー id → 対応するテキストボックス id のマッピング
 			const pairMap  = {
-				'tmColorFont': 'tmTxtFontColor',
-				'tmColorBg':   'tmTxtBgColor'
+				'tmColorFont':       'tmTxtFontColor',
+				'tmColorBg':         'tmTxtBgColor',
+				'tmColorActiveFont': 'tmTxtActiveFontColor',
+				'tmColorActiveBg':   'tmTxtActiveBgColor'
 			};
 			const pickerId = e.target.id;
 			const txtId    = pairMap[pickerId];
 			if (!txtId) {
 				return;
 			}
-			const $txt = $('#' + txtId);
-			$txt.val(e.target.value);
+			const $txt   = $('#' + txtId);
+			const rgb6   = e.target.value;   // #rrggbb
+			const curVal = String($txt.val()).trim();
+			// 現在のテキスト値からαを取得して引き継ぐ
+			const alphaPct = TMS_OPTIONS.Validation.ValidateColor(curVal)
+				? TMS_OPTIONS.Validation.ExtractAlpha(curVal)
+				: 100;
+			$txt.val(TMS_OPTIONS.Validation.BuildColorWithAlpha(rgb6, alphaPct));
 			$txt.removeClass('tm-invalid');
 		},
 
@@ -729,37 +960,84 @@ const TMS_OPTIONS = {
 
 		/**
 		 * カラーコードテキストの入力ハンドラ（機能設計書 §8.2）。
-		 * - ブランク：ピッカーを #ffffff で初期化（保存値はブランクのまま）
-		 * - 妥当値：ピッカーを6桁ヘックスに変換して反映
-		 * - 不正値：テキストに赤枠を付与しピッカーは更新しない
+		 * - ブランク：ピッカー・スライダーを初期値にリセット
+		 * - 妥当値：ピッカー（RGB部分）とスライダー（α部分）に反映
+		 * - 不正値：テキストに赤枠を付与しピッカー・スライダーは更新しない
 		 * @param {JQuery.TriggeredEvent} e - input イベント
 		 * @returns {void}
 		 */
 		OnTextColorInput: function (e) {
-			const pairMap  = {
-				'tmTxtFontColor': 'tmColorFont',
-				'tmTxtBgColor':   'tmColorBg'
+			// テキスト id → { ピッカー id, スライダー id, αラベル id } のマッピング
+			const pairMap = {
+				'tmTxtFontColor':       { picker: 'tmColorFont',       range: 'tmRangeFont',       label: 'tmAlphaFontLabel' },
+				'tmTxtBgColor':         { picker: 'tmColorBg',         range: 'tmRangeBg',         label: 'tmAlphaBgLabel' },
+				'tmTxtActiveFontColor': { picker: 'tmColorActiveFont', range: 'tmRangeActiveFont', label: 'tmAlphaActiveFontLabel' },
+				'tmTxtActiveBgColor':   { picker: 'tmColorActiveBg',   range: 'tmRangeActiveBg',   label: 'tmAlphaActiveBgLabel' }
 			};
-			const txtId    = e.target.id;
-			const pickerId = pairMap[txtId];
-			if (!pickerId) {
+			const txtId  = e.target.id;
+			const ids    = pairMap[txtId];
+			if (!ids) {
 				return;
 			}
 			const $txt    = $(e.target);
-			const $picker = $('#' + pickerId);
+			const $picker = $('#' + ids.picker);
+			const $range  = $('#' + ids.range);
+			const $label  = $('#' + ids.label);
 			const val     = String($txt.val()).trim();
 
 			if (val === '') {
-				// ブランク時は表示専用のデフォルト色を適用（保存値はブランクのまま）
 				$picker.val('#ffffff');
+				$range.val('100');
+				$label.text('100%');
 				$txt.removeClass('tm-invalid');
 				return;
 			}
 			if (TMS_OPTIONS.Validation.ValidateColor(val)) {
 				$picker.val(TMS_OPTIONS.Validation.NormalizeColorToHex6(val));
+				const alphaPct = TMS_OPTIONS.Validation.ExtractAlpha(val);
+				$range.val(String(alphaPct));
+				$label.text(alphaPct + '%');
 				$txt.removeClass('tm-invalid');
 			} else {
 				$txt.addClass('tm-invalid');
+			}
+		},
+
+		/**
+		 * αスライダーの変更ハンドラ。スライダー値をテキスト欄の α 部分に反映する。
+		 * ピッカーの RGB 値と組み合わせて #rrggbb または #rrggbbaa を生成する。
+		 * @param {JQuery.TriggeredEvent} e - input イベント
+		 * @returns {void}
+		 */
+		OnAlphaSliderChange: function (e) {
+			const pairMap = {
+				'tmRangeFont':       { txt: 'tmTxtFontColor',       picker: 'tmColorFont',       label: 'tmAlphaFontLabel' },
+				'tmRangeBg':         { txt: 'tmTxtBgColor',         picker: 'tmColorBg',         label: 'tmAlphaBgLabel' },
+				'tmRangeActiveFont': { txt: 'tmTxtActiveFontColor', picker: 'tmColorActiveFont', label: 'tmAlphaActiveFontLabel' },
+				'tmRangeActiveBg':   { txt: 'tmTxtActiveBgColor',   picker: 'tmColorActiveBg',   label: 'tmAlphaActiveBgLabel' }
+			};
+			const rangeId  = e.target.id;
+			const ids      = pairMap[rangeId];
+			if (!ids) {
+				return;
+			}
+			const alphaPct = parseInt(e.target.value, 10);
+			const $txt     = $('#' + ids.txt);
+			const $picker  = $('#' + ids.picker);
+			const $label   = $('#' + ids.label);
+
+			$label.text(alphaPct + '%');
+
+			// テキスト欄が有効な色ならピッカーの RGB + 新 α でテキストを更新
+			const curVal = String($txt.val()).trim();
+			if (curVal === '') {
+				return;
+			}
+			if (TMS_OPTIONS.Validation.ValidateColor(curVal)) {
+				const rgb6 = TMS_OPTIONS.Validation.NormalizeColorToHex6(curVal);
+				$picker.val(rgb6);
+				$txt.val(TMS_OPTIONS.Validation.BuildColorWithAlpha(rgb6, alphaPct));
+				$txt.removeClass('tm-invalid');
 			}
 		}
 	},
@@ -826,11 +1104,22 @@ const TMS_OPTIONS = {
 		// テーマ切替トグル（change で即永続化＋反映）
 		$(elems.chkTheme).on('change', H.OnThemeChange);
 
-		// カラーピッカー双方向連動（input イベントでリアルタイム同期）
+		// フォントプレビュー（フォント欄の入力でリアルタイム更新）
+		$(elems.txtFont).on('input', TMS_OPTIONS.UI.UpdateFontPreview);
+
+		// カラーピッカー・テキスト・αスライダーの双方向連動（input イベントでリアルタイム同期）
 		$(elems.txtFontColor).on('input', H.OnTextColorInput);
 		$(elems.colorFont).on('input', H.OnColorPickerChange);
+		$(elems.rangeFont).on('input', H.OnAlphaSliderChange);
 		$(elems.txtBgColor).on('input', H.OnTextColorInput);
 		$(elems.colorBg).on('input', H.OnColorPickerChange);
+		$(elems.rangeBg).on('input', H.OnAlphaSliderChange);
+		$(elems.txtActiveFontColor).on('input', H.OnTextColorInput);
+		$(elems.colorActiveFont).on('input', H.OnColorPickerChange);
+		$(elems.rangeActiveFont).on('input', H.OnAlphaSliderChange);
+		$(elems.txtActiveBgColor).on('input', H.OnTextColorInput);
+		$(elems.colorActiveBg).on('input', H.OnColorPickerChange);
+		$(elems.rangeActiveBg).on('input', H.OnAlphaSliderChange);
 
 		// ルール一覧（動的行）: jQuery イベント委譲で編集・削除ボタン・D&D をハンドル
 		const $list = $(elems.ruleList);

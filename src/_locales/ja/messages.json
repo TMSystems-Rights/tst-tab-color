@@ -84,7 +84,7 @@
 		"description": "正規表現構文エラー"
 	},
 	"errorInvalidColor": {
-		"message": "カラーコードの形式が不正です（例: #ff0000）",
+		"message": "カラーコードの形式が不正です（例: #ff0000, #ff000080）",
 		"description": "カラーコード形式エラー"
 	},
 	"errorSaveFailed": {
@@ -138,5 +138,25 @@
 			"total":   { "content": "$1" },
 			"elapsed": { "content": "$2" }
 		}
+	},
+	"optionsLabelActiveFontColor": {
+		"message": "アクティブ／ホバー時フォント色",
+		"description": "アクティブ／ホバー時のフォント色入力欄ラベル"
+	},
+	"optionsLabelActiveBgColor": {
+		"message": "アクティブ／ホバー時背景色",
+		"description": "アクティブ／ホバー時の背景色入力欄ラベル"
+	},
+	"optionsLabelFontPreview": {
+		"message": "フォントプレビュー",
+		"description": "フォントプレビューエリアのラベル"
+	},
+	"optionsLabelAlpha": {
+		"message": "透過度",
+		"description": "アルファスライダーのラベル"
+	},
+	"optionsFontPreviewSample": {
+		"message": "1234567890\nabcdefghij\nABCDEFGHIJ\nあいうえお\nアイウエオ\n①②③④⑤\nこのフォントで如何ですか？",
+		"description": "フォントプレビューエリアに表示するサンプル文"
 	}
 }

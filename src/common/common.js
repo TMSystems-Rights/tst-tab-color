@@ -66,21 +66,37 @@ const TMS_COMMON = {
 		},
 
 		/**
-		 * カラーコードの各チャンネル値を反転（255 − n）して返す。
-		 * #rgb 形式は #rrggbb 形式へ正規化してから反転する。
+		 * カラーコードの RGB チャンネルを反転（255 − n）して返す。α チャンネルは維持する。
+		 * #rgb / #rgba / #rrggbb / #rrggbbaa の 4 形式に対応。
 		 * :hover / :active 時の反転色生成に使用する（機能設計書 §6.2）。
-		 * @param {string} hex - カラーコード文字列（#rgb または #rrggbb）
-		 * @returns {string} 反転後のカラーコード（#rrggbb 形式）。不正入力時は入力値をそのまま返す
+		 * @param {string} hex - カラーコード文字列（4 形式いずれか）
+		 * @returns {string} 反転後のカラーコード。α なし → #rrggbb、α あり → #rrggbbaa。不正時は入力値をそのまま返す
 		 */
 		InvertColor: function (hex) {
-			const m3         = String(hex).match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
-			const normalized = m3 ? ('#' + m3[1] + m3[1] + m3[2] + m3[2] + m3[3] + m3[3]) : hex;
-			const m6         = String(normalized).match(/^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/);
-			if (!m6) {
-				return hex;
+			const s   = String(hex);
+			const inv = cs => cs.map(c => (255 - parseInt(c, 16)).toString(16).padStart(2, '0')).join('');
+
+			// #rgb
+			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
+			if (m3) {
+				return '#' + inv([m3[1]+m3[1], m3[2]+m3[2], m3[3]+m3[3]]);
 			}
-			const inv = [1, 2, 3].map(i => (255 - parseInt(m6[i], 16)).toString(16).padStart(2, '0')).join('');
-			return '#' + inv;
+			// #rgba
+			const m4 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
+			if (m4) {
+				return '#' + inv([m4[1]+m4[1], m4[2]+m4[2], m4[3]+m4[3]]) + m4[4]+m4[4];
+			}
+			// #rrggbb
+			const m6 = s.match(/^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/);
+			if (m6) {
+				return '#' + inv([m6[1], m6[2], m6[3]]);
+			}
+			// #rrggbbaa
+			const m8 = s.match(/^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/);
+			if (m8) {
+				return '#' + inv([m8[1], m8[2], m8[3]]) + m8[4];
+			}
+			return hex;
 		}
 	}
 };
