@@ -195,8 +195,22 @@
 			"excess": { "content": "$2" }
 		}
 	},
-	"confirmDiscardForCopy": {
+	"confirmDiscardChanges": {
 		"message": "Your unsaved input will be discarded. Continue?",
-		"description": "Confirm dialog shown when duplicate button is pressed while formDirty === true"
+		"description": "Confirm dialog shown on edit / duplicate button when formDirty === true (input-discard confirmation)"
+	},
+	"confirmDeleteRule": {
+		"message": "Are you sure you want to delete the rule \"$label$\"?",
+		"description": "Confirm dialog shown when delete button is pressed (formDirty === false)",
+		"placeholders": {
+			"label": { "content": "$1" }
+		}
+	},
+	"confirmDeleteRuleAndDiscard": {
+		"message": "Your unsaved input will be discarded and the rule \"$label$\" will be deleted. Are you sure?",
+		"description": "Confirm dialog shown when delete button is pressed (formDirty === true)",
+		"placeholders": {
+			"label": { "content": "$1" }
+		}
 	}
 }

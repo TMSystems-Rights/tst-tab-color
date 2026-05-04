@@ -195,8 +195,22 @@
 			"excess": { "content": "$2" }
 		}
 	},
-	"confirmDiscardForCopy": {
+	"confirmDiscardChanges": {
 		"message": "入力中の内容は破棄されます。よろしいですか？",
-		"description": "複写ボタン押下時にformDirty===trueの場合に表示する確認ダイアログ"
+		"description": "編集／複写ボタン押下時に formDirty===true の場合に表示する確認ダイアログ（入力破棄確認）"
+	},
+	"confirmDeleteRule": {
+		"message": "ルール「$label$」を削除します。よろしいですか？",
+		"description": "削除ボタン押下時に表示する確認ダイアログ（formDirty===false 時）",
+		"placeholders": {
+			"label": { "content": "$1" }
+		}
+	},
+	"confirmDeleteRuleAndDiscard": {
+		"message": "入力中の内容は破棄され、ルール「$label$」が削除されます。よろしいですか？",
+		"description": "削除ボタン押下時に表示する確認ダイアログ（formDirty===true 時）",
+		"placeholders": {
+			"label": { "content": "$1" }
+		}
 	}
 }

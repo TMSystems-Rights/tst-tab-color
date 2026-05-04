@@ -838,6 +838,14 @@ const TMS_OPTIONS = {
 			if (index < 0 || index >= rules.length) {
 				return;
 			}
+
+			// 入力中チェック（formDirty の場合のみ confirm。複写ボタンと同じ仕様）
+			if (TMS_OPTIONS.State.formDirty) {
+				if (!window.confirm(TMS_COMMON.Funcs.GetMsg('confirmDiscardChanges'))) {
+					return;
+				}
+			}
+
 			const rule = rules[index];
 
 			TMS_OPTIONS.State.mode         = 'edit';
@@ -890,6 +898,19 @@ const TMS_OPTIONS = {
 			if (index < 0 || index >= TMS_OPTIONS.State.rules.length) {
 				return;
 			}
+
+			// 削除確認ダイアログ（誤クリック防止のため formDirty に関わらず常に表示）。
+			// formDirty===true の場合は「入力中の内容も破棄される」旨を併記する。
+			// ルール名が未入力（v1.1.0 以前の既存ルール）の場合は URL パターンを fallback として表示。
+			const rule       = TMS_OPTIONS.State.rules[index];
+			const label      = rule.name || rule.pattern || '';
+			const messageKey = TMS_OPTIONS.State.formDirty
+				? 'confirmDeleteRuleAndDiscard'
+				: 'confirmDeleteRule';
+			if (!window.confirm(TMS_COMMON.Funcs.GetMsg(messageKey, [label]))) {
+				return;
+			}
+
 			TMS_OPTIONS.State.rules.splice(index, 1);
 			TMS_OPTIONS.UI.ClearError();
 
@@ -934,7 +955,7 @@ const TMS_OPTIONS = {
 
 			// 入力中チェック（formDirty の場合のみ confirm）
 			if (TMS_OPTIONS.State.formDirty) {
-				if (!window.confirm(TMS_COMMON.Funcs.GetMsg('confirmDiscardForCopy'))) {
+				if (!window.confirm(TMS_COMMON.Funcs.GetMsg('confirmDiscardChanges'))) {
 					return;
 				}
 			}

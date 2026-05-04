@@ -376,15 +376,31 @@ body {
 	font-size: 12px;
 }
 
+/* 1段目（通常時の色）：2段目との視覚的区切りに下罫線を入れる。
+   片方のみ入力されている場合に「通常／アクティブ」のどちらに値が入っているかを一目で識別可能にする。
+   min-height と :empty::before の二段構えで、片方の値が空でも 1段目／2段目 が同じ高さを保ち、
+   罫線が常にセル中央へ来るよう保証する。 */
 .tm-rule-color-row {
-	display:     block;
-	white-space: nowrap;
-	line-height: 1.5;
+	display:        block;
+	white-space:    nowrap;
+	line-height:    1.5;
+	min-height:     1.5em;
+	padding-bottom: 2px;
+	border-bottom:  1px solid var(--tm-border-table);
+	margin-bottom:  2px;
 }
 
-/* アクティブ色行をやや薄く表示（区別しやすく） */
+/* 2段目（アクティブ／ホバー時の色）：1段目で罫線を引いているため自身は罫線を持たない */
 .tm-rule-color-row.tm-rule-color-active {
-	opacity: 0.75;
+	padding-bottom: 0;
+	border-bottom:  none;
+	margin-bottom:  0;
+}
+
+/* 空の行（値未入力）に不可視文字を入れて line-box を生成し、min-height だけでなく
+   ベースライン位置も他行と揃える（&nbsp; 相当の U+00A0 を挿入） */
+.tm-rule-color-row:empty::before {
+	content: '\00a0';
 }
 
 /* ヘッダ2段表示（パターン名／URLパターン、フォント色／アクティブ、背景色／アクティブ） */
