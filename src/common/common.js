@@ -97,6 +97,16 @@ const TMS_COMMON = {
 				return '#' + inv([m8[1], m8[2], m8[3]]) + m8[4];
 			}
 			return hex;
+		},
+
+		/**
+		 * 文字列の前後から半角空白（\s）と全角空白（U+3000）を除去する。
+		 * 既存の String.prototype.trim() は半角空白系のみ除去するため、全角空白を残す不整合を解消する目的で追加した。
+		 * @param {string} s - 対象文字列（null/undefined は空文字扱い）
+		 * @returns {string} trim 後の文字列
+		 */
+		TrimAll: function (s) {
+			return String(s ?? '').replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
 		}
 	}
 };

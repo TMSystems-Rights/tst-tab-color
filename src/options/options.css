@@ -64,6 +64,13 @@
 	--tm-btn-delete-border:    #d9534f;
 	--tm-btn-delete-bg-hover:  #4a2a2a;
 
+	--tm-btn-duplicate-bg:         #3b3b3b;
+	--tm-btn-duplicate-fg:         #8bc34a;
+	--tm-btn-duplicate-border:     #8bc34a;
+	--tm-btn-duplicate-bg-hover:   #283520;
+	--tm-btn-duplicate-fg-disabled:#666;
+	--tm-btn-duplicate-border-disabled:#555;
+
 	/* バリデーション／メッセージ */
 	--tm-invalid-border:   #d9534f;
 	--tm-invalid-bg:       #4a2a2a;
@@ -84,7 +91,7 @@
 
 /* ライトテーマのオーバーライド */
 body.tm-theme-light {
-	--tm-bg-page:          #fafafa;
+	--tm-bg-page:          #eee;
 	--tm-fg-page:          #222;
 
 	--tm-bg-surface:       #fff;
@@ -125,6 +132,13 @@ body.tm-theme-light {
 	--tm-btn-delete-fg:        #d9534f;
 	--tm-btn-delete-border:    #d9534f;
 	--tm-btn-delete-bg-hover:  #fdecea;
+
+	--tm-btn-duplicate-bg:         #fff;
+	--tm-btn-duplicate-fg:         #5a8a2a;
+	--tm-btn-duplicate-border:     #5a8a2a;
+	--tm-btn-duplicate-bg-hover:   #f0f8e8;
+	--tm-btn-duplicate-fg-disabled:#aaa;
+	--tm-btn-duplicate-border-disabled:#ccc;
 
 	--tm-invalid-border:   #d9534f;
 	--tm-invalid-bg:       #fdecea;
@@ -169,7 +183,7 @@ body {
 }
 
 .tm-main {
-	max-width: 1100px;
+	max-width: min(1600px, 95vw);
 	margin:    0 auto;
 }
 
@@ -258,8 +272,16 @@ body {
 /* ==========================================================================
  * ルール一覧テーブル
  * ========================================================================== */
+
+/* テーブルが狭いウィンドウでも最小幅を維持し、はみ出す場合は横スクロールを許容する */
+.tm-rule-table-wrapper {
+	overflow-x: auto;
+	min-width:  0;
+}
+
 .tm-rule-table {
 	width:           100%;
+	min-width:       720px;
 	border-collapse: collapse;
 	table-layout:    fixed;
 }
@@ -281,7 +303,7 @@ body {
 	font-weight: 600;
 }
 
-/* 列幅（機能設計書 §8.1 のレイアウト順） */
+/* 列幅（v1.2.0: handle / pattern / type / font / fontcolor / bgcolor / edit / duplicate / delete） */
 .tm-col-handle    { width:  30px; text-align: center; }
 .tm-col-pattern   { width:  auto; }
 .tm-col-type      { width:  90px; }
@@ -289,6 +311,7 @@ body {
 .tm-col-fontcolor { width: 130px; }
 .tm-col-bgcolor   { width: 130px; }
 .tm-col-edit      { width:  70px; text-align: center; }
+.tm-col-duplicate { width:  70px; text-align: center; }
 .tm-col-delete    { width:  70px; text-align: center; }
 
 /* D&D 用の行スタイル */
@@ -364,6 +387,36 @@ body {
 	opacity: 0.75;
 }
 
+/* ヘッダ2段表示（パターン名／URLパターン、フォント色／アクティブ、背景色／アクティブ） */
+.tm-th-line1 {
+	display:       block;
+	padding-bottom: 4px;
+	border-bottom: 1px solid var(--tm-border-table);
+	margin-bottom: 3px;
+}
+
+.tm-th-line2 {
+	display: block;
+}
+
+/* ルール一覧セル内のパターン名（1段目: 太字）とURLパターン（2段目: 小さめ） */
+.tm-rule-name {
+	display:     block;
+	font-weight: 600;
+	white-space: nowrap;
+	overflow:    hidden;
+	text-overflow: ellipsis;
+}
+
+.tm-rule-pattern {
+	display:     block;
+	font-size:   11px;
+	opacity:     0.8;
+	white-space: nowrap;
+	overflow:    hidden;
+	text-overflow: ellipsis;
+}
+
 /* 編集ボタン（一覧行） — ニュートラル配色 */
 .tm-btn-edit {
 	padding:       2px 10px;
@@ -392,6 +445,28 @@ body {
 
 .tm-btn-delete:hover {
 	background: var(--tm-btn-delete-bg-hover);
+}
+
+/* 複写ボタン（一覧行） — アクセント配色（緑系） */
+.tm-btn-duplicate {
+	padding:       2px 10px;
+	font-size:     12px;
+	cursor:        pointer;
+	border:        1px solid var(--tm-btn-duplicate-border);
+	background:    var(--tm-btn-duplicate-bg);
+	color:         var(--tm-btn-duplicate-fg);
+	border-radius: 2px;
+}
+
+.tm-btn-duplicate:hover:not(:disabled) {
+	background: var(--tm-btn-duplicate-bg-hover);
+}
+
+.tm-btn-duplicate:disabled {
+	cursor:       not-allowed;
+	color:        var(--tm-btn-duplicate-fg-disabled);
+	border-color: var(--tm-btn-duplicate-border-disabled);
+	opacity:      0.6;
 }
 
 /* ==========================================================================

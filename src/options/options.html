@@ -47,23 +47,34 @@
 			     ======================================== -->
 			<section class="tm-section">
 				<h2 data-i18n="optionsRuleListHeader">ルール一覧</h2>
+				<div class="tm-rule-table-wrapper">
 				<table class="tm-rule-table">
 					<thead>
 						<tr>
 							<th class="tm-col-handle"></th>
-							<th class="tm-col-pattern"    data-i18n="optionsLabelPattern">URLパターン</th>
-							<th class="tm-col-type"       data-i18n="optionsLabelPatternType">種別</th>
-							<th class="tm-col-font"       data-i18n="optionsLabelFontFamily">フォント</th>
-							<th class="tm-col-fontcolor"  data-i18n="optionsLabelFontColor">フォント色</th>
-							<th class="tm-col-bgcolor"    data-i18n="optionsLabelBgColor">背景色</th>
-							<!-- フォント色・背景色列は各セル内で通常色／アクティブ色を縦積み2段表示するため列追加なし -->
+							<th class="tm-col-pattern">
+								<span class="tm-th-line1" data-i18n="optionsLabelPatternName">パターン名</span>
+								<span class="tm-th-line2" data-i18n="optionsLabelPattern">URLパターン</span>
+							</th>
+							<th class="tm-col-type"      data-i18n="optionsLabelPatternType">種別</th>
+							<th class="tm-col-font"      data-i18n="optionsLabelFontFamily">フォント</th>
+							<th class="tm-col-fontcolor">
+								<span class="tm-th-line1" data-i18n="optionsLabelFontColor">フォント色</span>
+								<span class="tm-th-line2" data-i18n="optionsLabelActiveHoverShort">アクティブ／ホバー</span>
+							</th>
+							<th class="tm-col-bgcolor">
+								<span class="tm-th-line1" data-i18n="optionsLabelBgColor">背景色</span>
+								<span class="tm-th-line2" data-i18n="optionsLabelActiveHoverShort">アクティブ／ホバー</span>
+							</th>
 							<th class="tm-col-edit"></th>
+							<th class="tm-col-duplicate"></th>
 							<th class="tm-col-delete"></th>
 						</tr>
 					</thead>
 					<!-- 各ルール行は options.js の BuildRuleRow() により動的生成 -->
 					<tbody id="tmRuleList"></tbody>
 				</table>
+				</div>
 			</section>
 
 			<!-- ========================================
@@ -73,6 +84,9 @@
 			<section class="tm-section">
 				<h2 id="tmSectionFormHeader" data-i18n="optionsAddRuleHeader">ルール追加</h2>
 				<div class="tm-form-grid">
+					<label for="tmTxtName" data-i18n="optionsLabelPatternName">パターン名</label>
+					<input type="text" id="tmTxtName" maxlength="50" class="tm-input-name" />
+
 					<label for="tmTxtPattern" data-i18n="optionsLabelPattern">URLパターン</label>
 					<input type="text" id="tmTxtPattern" class="tm-input-pattern" />
 

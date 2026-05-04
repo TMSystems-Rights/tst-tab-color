@@ -186,7 +186,7 @@ const TMS_BACKGROUND = {
 				// :hover / :active 時のオーバーライド
 				// 仕様書 §7.2: activeBackgroundColor / activeFontColor が指定されていれば優先し、
 				// 未指定時は既存の invert(bg) / bg フォールバック挙動を維持する
-				const hasBg      = !!rule.backgroundColor;
+				const hasBg       = !!rule.backgroundColor;
 				const hasActiveBg = !!rule.activeBackgroundColor;
 				const hasActiveFg = !!rule.activeFontColor;
 

@@ -158,5 +158,45 @@
 	"optionsFontPreviewSample": {
 		"message": "1234567890\nabcdefghij\nABCDEFGHIJ\n!@#$%^&*()\nThe quick brown fox\njumps over the lazy dog.\nHow does this font look?",
 		"description": "Sample text displayed in the font preview area"
+	},
+	"optionsLabelPatternName": {
+		"message": "Pattern Name",
+		"description": "Label for the pattern name input / rule list column header (line 1)"
+	},
+	"optionsLabelActiveHoverShort": {
+		"message": "Active / Hover",
+		"description": "Second line of the font color / background color column header (short label for active/hover)"
+	},
+	"optionsButtonDuplicate": {
+		"message": "Duplicate",
+		"description": "Duplicate button in each rule row"
+	},
+	"errorNameEmpty": {
+		"message": "Please enter a pattern name.",
+		"description": "Error: pattern name is empty"
+	},
+	"errorNameDuplicate": {
+		"message": "This pattern name is already registered. Please use a different name.",
+		"description": "Error: pattern name is duplicated"
+	},
+	"errorNameTooLong": {
+		"message": "The pattern name must be 50 characters or less.",
+		"description": "Error: pattern name exceeds 50 characters"
+	},
+	"errorMaxRulesExceeded": {
+		"message": "The maximum number of rules (50) has been reached. Please delete unused rules before adding new ones.",
+		"description": "Error: rule count limit reached (on add / duplicate)"
+	},
+	"errorMaxRulesExceededOnLoad": {
+		"message": "Due to a v1.2.0 specification change, the maximum number of rules is now 50.\nYou currently have $count$ rules. The $excess$ rules beyond the 50th will be removed.",
+		"description": "Warning shown on startup when more than 50 rules are detected (before forced truncation)",
+		"placeholders": {
+			"count":  { "content": "$1" },
+			"excess": { "content": "$2" }
+		}
+	},
+	"confirmDiscardForCopy": {
+		"message": "Your unsaved input will be discarded. Continue?",
+		"description": "Confirm dialog shown when duplicate button is pressed while formDirty === true"
 	}
 }

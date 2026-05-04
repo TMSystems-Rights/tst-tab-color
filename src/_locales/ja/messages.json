@@ -158,5 +158,45 @@
 	"optionsFontPreviewSample": {
 		"message": "1234567890\nabcdefghij\nABCDEFGHIJ\nあいうえお\nアイウエオ\n①②③④⑤\nこのフォントで如何ですか？",
 		"description": "フォントプレビューエリアに表示するサンプル文"
+	},
+	"optionsLabelPatternName": {
+		"message": "パターン名",
+		"description": "パターン名入力欄のラベル／ルール一覧の列見出し（1段目）"
+	},
+	"optionsLabelActiveHoverShort": {
+		"message": "アクティブ／ホバー",
+		"description": "フォント色・背景色列のヘッダ2段目（アクティブ／ホバー時の色を示す短縮表記）"
+	},
+	"optionsButtonDuplicate": {
+		"message": "複写",
+		"description": "ルール行の複写ボタン"
+	},
+	"errorNameEmpty": {
+		"message": "パターン名を入力してください。",
+		"description": "パターン名未入力エラー"
+	},
+	"errorNameDuplicate": {
+		"message": "入力したパターン名は既に登録済みです。別の名前に変更してください。",
+		"description": "パターン名重複エラー"
+	},
+	"errorNameTooLong": {
+		"message": "パターン名は 50 文字以内で入力してください。",
+		"description": "パターン名50文字超過エラー"
+	},
+	"errorMaxRulesExceeded": {
+		"message": "登録可能なルール数の上限（50 件）に達しています。不要なルールを削除してから追加してください。",
+		"description": "ルール件数上限到達エラー（新規追加・複写時）"
+	},
+	"errorMaxRulesExceededOnLoad": {
+		"message": "v1.2.0 の仕様変更により、登録可能なルール数が最大 50 件になりました。\n現在 $count$ 件登録されているため、51 件目以降の $excess$ 件を削除します。",
+		"description": "起動時に51件超過を検知した場合の警告（強制切詰前に表示）",
+		"placeholders": {
+			"count":  { "content": "$1" },
+			"excess": { "content": "$2" }
+		}
+	},
+	"confirmDiscardForCopy": {
+		"message": "入力中の内容は破棄されます。よろしいですか？",
+		"description": "複写ボタン押下時にformDirty===trueの場合に表示する確認ダイアログ"
 	}
 }

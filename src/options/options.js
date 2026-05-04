@@ -34,13 +34,21 @@ const TMS_OPTIONS = {
 		 * @type {'dark'|'light'} 現在のテーマ設定。既定は 'dark'（初回読込時の
 		 * 描画フラッシュ抑止のため）。storage.local の 'theme' キーで永続化する。
 		 */
-		theme:           'dark'
+		theme:           'dark',
+		/**
+		 * @type {boolean} フォームがユーザー操作によって変更されているか否か。
+		 * ユーザー入力があると true、ClearForm / PopulateFormFromRule / OnAddRule 成功 / OnCancel で false にリセット。
+		 * 複写ボタン押下時に true の場合のみ確認ダイアログを表示する。
+		 */
+		formDirty:       false
 	},
 
 	// ===================================================
 	// DOM要素の参照（Init 実行時に一括取得）
 	// ===================================================
 	Elements: {
+		/** @type {HTMLInputElement|null} パターン名のテキストボックス */
+		txtName:           null,
 		/** @type {HTMLInputElement|null} URLパターンのテキストボックス */
 		txtPattern:        null,
 		/** @type {HTMLInputElement|null} 前方一致ラジオボタン */
@@ -109,6 +117,7 @@ const TMS_OPTIONS = {
 		 * @returns {void}
 		 */
 		Init: function () {
+			this.txtName              = document.getElementById('tmTxtName');
 			this.txtPattern           = document.getElementById('tmTxtPattern');
 			this.radPrefix            = document.getElementById('tmRadPrefix');
 			this.radRegexp            = document.getElementById('tmRadRegexp');
@@ -148,13 +157,41 @@ const TMS_OPTIONS = {
 	// ===================================================
 	Validation: {
 		/**
+		 * パターン名のバリデーション。必須・50文字以下・重複チェックを行う
+		 * @param {string} name - パターン名文字列（trim 前）
+		 * @param {number} editingIndex - 更新モード時の対象インデックス（追加モード時は -1）
+		 * @returns {{valid: boolean, message: string}} 検証結果（invalid 時はエラーメッセージ付き）
+		 */
+		ValidateName: function (name, editingIndex) {
+			const TrimAll = TMS_COMMON.Funcs.TrimAll;
+			const trimmed = TrimAll(name);
+			if (trimmed.length === 0) {
+				return { valid: false, message: TMS_COMMON.Funcs.GetMsg('errorNameEmpty') };
+			}
+			if (trimmed.length > 50) {
+				return { valid: false, message: TMS_COMMON.Funcs.GetMsg('errorNameTooLong') };
+			}
+			const lowerTrimmed = trimmed.toLowerCase();
+			const rules        = TMS_OPTIONS.State.rules;
+			for (let i = 0; i < rules.length; i++) {
+				if (i === editingIndex) {
+					continue;
+				}
+				if (TrimAll(rules[i].name || '').toLowerCase() === lowerTrimmed) {
+					return { valid: false, message: TMS_COMMON.Funcs.GetMsg('errorNameDuplicate') };
+				}
+			}
+			return { valid: true, message: '' };
+		},
+
+		/**
 		 * URLパターンのバリデーション。必須チェックと正規表現構文チェックを行う
 		 * @param {string} pattern - URLパターン文字列
 		 * @param {string} type - パターン種別（'prefix' | 'regexp'）
 		 * @returns {{valid: boolean, message: string}} 検証結果（invalid 時はエラーメッセージ付き）
 		 */
 		ValidatePattern: function (pattern, type) {
-			if (!pattern || pattern.trim().length === 0) {
+			if (!pattern || TMS_COMMON.Funcs.TrimAll(pattern).length === 0) {
 				return { valid: false, message: TMS_COMMON.Funcs.GetMsg('errorPatternEmpty') };
 			}
 			if (type === 'regexp') {
@@ -187,7 +224,7 @@ const TMS_OPTIONS = {
 		 * @returns {string} #rrggbb 形式の RGB 部分
 		 */
 		NormalizeColorToHex6: function (value) {
-			const s  = String(value);
+			const s = String(value);
 			// #rgb / #rgba → #rrggbb
 			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/);
 			if (m3 && (s.length === 4 || s.length === 5)) {
@@ -205,18 +242,26 @@ const TMS_OPTIONS = {
 		 * @returns {string} #rrggbbaa 形式
 		 */
 		NormalizeColorToHex8: function (value) {
-			const s  = String(value);
+			const s = String(value);
 			// #rgb → #rrggbbff
 			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
-			if (m3) { return '#' + m3[1]+m3[1] + m3[2]+m3[2] + m3[3]+m3[3] + 'ff'; }
+			if (m3) {
+				return '#' + m3[1]+m3[1] + m3[2]+m3[2] + m3[3]+m3[3] + 'ff'; 
+			}
 			// #rgba → #rrggbbaa
 			const m4 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
-			if (m4) { return '#' + m4[1]+m4[1] + m4[2]+m4[2] + m4[3]+m4[3] + m4[4]+m4[4]; }
+			if (m4) {
+				return '#' + m4[1]+m4[1] + m4[2]+m4[2] + m4[3]+m4[3] + m4[4]+m4[4]; 
+			}
 			// #rrggbb → #rrggbbff
 			const m6 = s.match(/^#([0-9a-fA-F]{6})$/);
-			if (m6) { return '#' + m6[1] + 'ff'; }
+			if (m6) {
+				return '#' + m6[1] + 'ff'; 
+			}
 			// #rrggbbaa → そのまま
-			if (/^#[0-9a-fA-F]{8}$/.test(s)) { return s; }
+			if (/^#[0-9a-fA-F]{8}$/.test(s)) {
+				return s; 
+			}
 			return value;
 		},
 
@@ -227,13 +272,17 @@ const TMS_OPTIONS = {
 		 * @returns {number} 0〜100 の整数
 		 */
 		ExtractAlpha: function (value) {
-			const s  = String(value);
+			const s = String(value);
 			// #rgba
 			const m4 = s.match(/^#[0-9a-fA-F]{3}([0-9a-fA-F])$/);
-			if (m4) { return Math.round(parseInt(m4[1]+m4[1], 16) / 255 * 100); }
+			if (m4) {
+				return Math.round(parseInt(m4[1]+m4[1], 16) / 255 * 100); 
+			}
 			// #rrggbbaa
 			const m8 = s.match(/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})$/);
-			if (m8) { return Math.round(parseInt(m8[1], 16) / 255 * 100); }
+			if (m8) {
+				return Math.round(parseInt(m8[1], 16) / 255 * 100); 
+			}
 			return 100;
 		},
 
@@ -294,13 +343,16 @@ const TMS_OPTIONS = {
 			// ドラッグハンドル列
 			$tr.append($('<td>').addClass('tm-drag-handle').text('≡'));
 
-			// URLパターン列（列幅超過時は CSS で省略記号 "..." 表示。
-			// 省略された文字列をホバーで全体確認できるよう title 属性で標準ツールチップを出す）
-			const pattern  = rule.pattern || '';
-			const $tdPattern = $('<td>').text(pattern);
+			// URLパターン列（1段目: パターン名, 2段目: URLパターン）
+			const name         = rule.name    || '';
+			const pattern      = rule.pattern || '';
+			const $tdPattern   = $('<td>');
+			const $nameLine    = $('<span>').addClass('tm-rule-name').text(name);
+			const $patternLine = $('<span>').addClass('tm-rule-pattern').text(pattern);
 			if (pattern) {
-				$tdPattern.attr('title', pattern);
+				$tdPattern.attr('title', name ? (name + '\n' + pattern) : pattern);
 			}
+			$tdPattern.append($nameLine, $patternLine);
 			$tr.append($tdPattern);
 
 			// 種別列（i18n 経由で localized 文字列を取得）
@@ -326,9 +378,9 @@ const TMS_OPTIONS = {
 			};
 
 			// フォント色列（通常色 / アクティブ色 の2段表示）
-			const $fontColorCell  = $('<td>').addClass('tm-rule-color-cell');
-			const $fcNormal       = $('<div>').addClass('tm-rule-color-row');
-			const $fcActive       = $('<div>').addClass('tm-rule-color-row tm-rule-color-active');
+			const $fontColorCell = $('<td>').addClass('tm-rule-color-cell');
+			const $fcNormal      = $('<div>').addClass('tm-rule-color-row');
+			const $fcActive      = $('<div>').addClass('tm-rule-color-row tm-rule-color-active');
 			if (rule.fontColor) {
 				$fcNormal.append(makeSwatch(rule.fontColor));
 				$fcNormal.append(document.createTextNode(rule.fontColor));
@@ -341,9 +393,9 @@ const TMS_OPTIONS = {
 			$tr.append($fontColorCell);
 
 			// 背景色列（通常色 / アクティブ色 の2段表示）
-			const $bgColorCell  = $('<td>').addClass('tm-rule-color-cell');
-			const $bgNormal     = $('<div>').addClass('tm-rule-color-row');
-			const $bgActive     = $('<div>').addClass('tm-rule-color-row tm-rule-color-active');
+			const $bgColorCell = $('<td>').addClass('tm-rule-color-cell');
+			const $bgNormal    = $('<div>').addClass('tm-rule-color-row');
+			const $bgActive    = $('<div>').addClass('tm-rule-color-row tm-rule-color-active');
 			if (rule.backgroundColor) {
 				$bgNormal.append(makeSwatch(rule.backgroundColor));
 				$bgNormal.append(document.createTextNode(rule.backgroundColor));
@@ -366,6 +418,17 @@ const TMS_OPTIONS = {
 				)
 			);
 
+			// 複写ボタン列（件数上限到達時は disabled。モード問わず常時表示）
+			const $duplicateBtn = $('<button>')
+				.attr('type', 'button')
+				.attr('data-index', index)
+				.addClass('tm-btn-duplicate')
+				.text(TMS_COMMON.Funcs.GetMsg('optionsButtonDuplicate'));
+			if (TMS_OPTIONS.State.rules.length >= 50) {
+				$duplicateBtn.prop('disabled', true);
+			}
+			$tr.append($('<td>').append($duplicateBtn));
+
 			// 削除ボタン列
 			$tr.append(
 				$('<td>').append(
@@ -386,7 +449,7 @@ const TMS_OPTIONS = {
 		 */
 		UpdateFontPreview: function () {
 			const E          = TMS_OPTIONS.Elements;
-			const fontFamily = (E.txtFont.value || '').trim();
+			const fontFamily = TMS_COMMON.Funcs.TrimAll(E.txtFont.value || '');
 
 			if (!fontFamily) {
 				E.fontPreview.style.display = 'none';
@@ -434,36 +497,41 @@ const TMS_OPTIONS = {
 		ClearForm: function () {
 			const elems = TMS_OPTIONS.Elements;
 
-			elems.txtPattern.value   = '';
-			elems.radPrefix.checked  = true;
-			elems.radRegexp.checked  = false;
-			elems.txtFont.value      = '';
-			elems.txtFontColor.value = '';
-			elems.colorFont.value    = '#ffffff';
-			elems.rangeFont.value    = '100';
-			elems.alphaFontLabel.textContent = '100%';
-			elems.txtBgColor.value   = '';
-			elems.colorBg.value      = '#ffffff';
-			elems.rangeBg.value      = '100';
-			elems.alphaBgLabel.textContent = '100%';
-			elems.txtActiveFontColor.value = '';
-			elems.colorActiveFont.value    = '#ffffff';
-			elems.rangeActiveFont.value    = '100';
+			elems.txtName.value                    = '';
+			elems.txtPattern.value                 = '';
+			elems.radPrefix.checked                = true;
+			elems.radRegexp.checked                = false;
+			elems.txtFont.value                    = '';
+			elems.txtFontColor.value               = '';
+			elems.colorFont.value                  = '#ffffff';
+			elems.rangeFont.value                  = '100';
+			elems.alphaFontLabel.textContent       = '100%';
+			elems.txtBgColor.value                 = '';
+			elems.colorBg.value                    = '#ffffff';
+			elems.rangeBg.value                    = '100';
+			elems.alphaBgLabel.textContent         = '100%';
+			elems.txtActiveFontColor.value         = '';
+			elems.colorActiveFont.value            = '#ffffff';
+			elems.rangeActiveFont.value            = '100';
 			elems.alphaActiveFontLabel.textContent = '100%';
-			elems.txtActiveBgColor.value   = '';
-			elems.colorActiveBg.value      = '#ffffff';
-			elems.rangeActiveBg.value      = '100';
-			elems.alphaActiveBgLabel.textContent = '100%';
+			elems.txtActiveBgColor.value           = '';
+			elems.colorActiveBg.value              = '#ffffff';
+			elems.rangeActiveBg.value              = '100';
+			elems.alphaActiveBgLabel.textContent   = '100%';
 
 			// プレビュー非表示
 			elems.fontPreview.style.display = 'none';
 
 			// 赤枠解除
+			$(elems.txtName).removeClass('tm-invalid');
 			$(elems.txtPattern).removeClass('tm-invalid');
 			$(elems.txtFontColor).removeClass('tm-invalid');
 			$(elems.txtBgColor).removeClass('tm-invalid');
 			$(elems.txtActiveFontColor).removeClass('tm-invalid');
 			$(elems.txtActiveBgColor).removeClass('tm-invalid');
+
+			// dirty フラグリセット（プログラムによる初期化のため）
+			TMS_OPTIONS.State.formDirty = false;
 		},
 
 		/**
@@ -473,56 +541,61 @@ const TMS_OPTIONS = {
 		 * @returns {void}
 		 */
 		PopulateFormFromRule: function (rule) {
-			const elems       = TMS_OPTIONS.Elements;
-			const toHex6      = TMS_OPTIONS.Validation.NormalizeColorToHex6;
+			const elems        = TMS_OPTIONS.Elements;
+			const toHex6       = TMS_OPTIONS.Validation.NormalizeColorToHex6;
 			const extractAlpha = TMS_OPTIONS.Validation.ExtractAlpha;
 
-			elems.txtPattern.value = rule.pattern || '';
+			elems.txtName.value     = rule.name    || '';
+			elems.txtPattern.value  = rule.pattern || '';
 			elems.radPrefix.checked = (rule.patternType === 'prefix');
 			elems.radRegexp.checked = (rule.patternType === 'regexp');
 			elems.txtFont.value     = rule.fontFamily || '';
 
 			// フォント色
-			const fc = rule.fontColor || '';
-			elems.txtFontColor.value = fc;
-			elems.colorFont.value    = fc ? toHex6(fc) : '#ffffff';
-			const fcA = fc ? extractAlpha(fc) : 100;
-			elems.rangeFont.value              = String(fcA);
-			elems.alphaFontLabel.textContent   = fcA + '%';
+			const fc                         = rule.fontColor || '';
+			elems.txtFontColor.value         = fc;
+			elems.colorFont.value            = fc ? toHex6(fc) : '#ffffff';
+			const fcA                        = fc ? extractAlpha(fc) : 100;
+			elems.rangeFont.value            = String(fcA);
+			elems.alphaFontLabel.textContent = fcA + '%';
 
 			// 背景色
-			const bc = rule.backgroundColor || '';
-			elems.txtBgColor.value = bc;
-			elems.colorBg.value    = bc ? toHex6(bc) : '#ffffff';
-			const bcA = bc ? extractAlpha(bc) : 100;
-			elems.rangeBg.value             = String(bcA);
-			elems.alphaBgLabel.textContent  = bcA + '%';
+			const bc                       = rule.backgroundColor || '';
+			elems.txtBgColor.value         = bc;
+			elems.colorBg.value            = bc ? toHex6(bc) : '#ffffff';
+			const bcA                      = bc ? extractAlpha(bc) : 100;
+			elems.rangeBg.value            = String(bcA);
+			elems.alphaBgLabel.textContent = bcA + '%';
 
 			// アクティブ時フォント色
-			const afc = rule.activeFontColor || '';
-			elems.txtActiveFontColor.value = afc;
-			elems.colorActiveFont.value    = afc ? toHex6(afc) : '#ffffff';
-			const afcA = afc ? extractAlpha(afc) : 100;
-			elems.rangeActiveFont.value              = String(afcA);
-			elems.alphaActiveFontLabel.textContent   = afcA + '%';
+			const afc                              = rule.activeFontColor || '';
+			elems.txtActiveFontColor.value         = afc;
+			elems.colorActiveFont.value            = afc ? toHex6(afc) : '#ffffff';
+			const afcA                             = afc ? extractAlpha(afc) : 100;
+			elems.rangeActiveFont.value            = String(afcA);
+			elems.alphaActiveFontLabel.textContent = afcA + '%';
 
 			// アクティブ時背景色
-			const abc = rule.activeBackgroundColor || '';
-			elems.txtActiveBgColor.value = abc;
-			elems.colorActiveBg.value    = abc ? toHex6(abc) : '#ffffff';
-			const abcA = abc ? extractAlpha(abc) : 100;
-			elems.rangeActiveBg.value              = String(abcA);
-			elems.alphaActiveBgLabel.textContent   = abcA + '%';
+			const abc                            = rule.activeBackgroundColor || '';
+			elems.txtActiveBgColor.value         = abc;
+			elems.colorActiveBg.value            = abc ? toHex6(abc) : '#ffffff';
+			const abcA                           = abc ? extractAlpha(abc) : 100;
+			elems.rangeActiveBg.value            = String(abcA);
+			elems.alphaActiveBgLabel.textContent = abcA + '%';
 
 			// フォントプレビュー更新
 			TMS_OPTIONS.UI.UpdateFontPreview();
 
 			// 赤枠を解除（過去の不正入力履歴を持ち越さない）
+			$(elems.txtName).removeClass('tm-invalid');
 			$(elems.txtPattern).removeClass('tm-invalid');
 			$(elems.txtFontColor).removeClass('tm-invalid');
 			$(elems.txtBgColor).removeClass('tm-invalid');
 			$(elems.txtActiveFontColor).removeClass('tm-invalid');
 			$(elems.txtActiveBgColor).removeClass('tm-invalid');
+
+			// dirty フラグリセット（プログラムによる値セットのため）
+			TMS_OPTIONS.State.formDirty = false;
 		},
 
 		/**
@@ -639,8 +712,19 @@ const TMS_OPTIONS = {
 			TMS_OPTIONS.UI.ClearError();
 
 			const elems   = TMS_OPTIONS.Elements;
-			const pattern = elems.txtPattern.value.trim();
+			const TrimAll = TMS_COMMON.Funcs.TrimAll;
+			const pattern = TrimAll(elems.txtPattern.value);
 			const type    = elems.radRegexp.checked ? 'regexp' : 'prefix';
+
+			// パターン名のバリデーション（必須・最大長・重複）
+			const editingIndex = TMS_OPTIONS.State.mode === 'edit' ? TMS_OPTIONS.State.editingIndex : -1;
+			const nameResult   = TMS_OPTIONS.Validation.ValidateName(elems.txtName.value, editingIndex);
+			if (!nameResult.valid) {
+				$(elems.txtName).addClass('tm-invalid');
+				TMS_OPTIONS.UI.ShowError(nameResult.message);
+				return;
+			}
+			$(elems.txtName).removeClass('tm-invalid');
 
 			// URLパターンのバリデーション（必須＋正規表現構文）
 			const patternResult = TMS_OPTIONS.Validation.ValidatePattern(pattern, type);
@@ -652,10 +736,10 @@ const TMS_OPTIONS = {
 			$(elems.txtPattern).removeClass('tm-invalid');
 
 			// フォント色・背景色・アクティブ色のバリデーション（ブランクは有効）
-			const fontColor        = elems.txtFontColor.value.trim();
-			const bgColor          = elems.txtBgColor.value.trim();
-			const activeFontColor  = elems.txtActiveFontColor.value.trim();
-			const activeBgColor    = elems.txtActiveBgColor.value.trim();
+			const fontColor       = TrimAll(elems.txtFontColor.value);
+			const bgColor         = TrimAll(elems.txtBgColor.value);
+			const activeFontColor = TrimAll(elems.txtActiveFontColor.value);
+			const activeBgColor   = TrimAll(elems.txtActiveBgColor.value);
 			if (!TMS_OPTIONS.Validation.ValidateColor(fontColor)) {
 				$(elems.txtFontColor).addClass('tm-invalid');
 				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorInvalidColor'));
@@ -677,7 +761,7 @@ const TMS_OPTIONS = {
 				return;
 			}
 
-			const fontFamily = elems.txtFont.value.trim();
+			const fontFamily = TrimAll(elems.txtFont.value);
 			// 全スタイル項目が空の場合はブロック（アクティブ色のみ指定も可）
 			if (fontFamily === '' && fontColor === '' && bgColor === '' && activeFontColor === '' && activeBgColor === '') {
 				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorNoStyle'));
@@ -699,6 +783,7 @@ const TMS_OPTIONS = {
 				}
 				rules[idx] = {
 					id:                    rules[idx].id,
+					name:                  TMS_COMMON.Funcs.TrimAll(elems.txtName.value),
 					pattern:               pattern,
 					patternType:           type,
 					fontFamily:            fontFamily,
@@ -711,12 +796,20 @@ const TMS_OPTIONS = {
 				TMS_OPTIONS.State.mode            = 'add';
 				TMS_OPTIONS.State.editingIndex    = -1;
 				TMS_OPTIONS.State.editingSnapshot = null;
+				TMS_OPTIONS.State.formDirty       = false;
 				TMS_OPTIONS.UI.ApplyModeLabels();
 				TMS_OPTIONS.UI.ClearForm();
 			} else {
+				// 追加モード：件数上限チェック（50件以上は追加不可）
+				if (TMS_OPTIONS.State.rules.length >= 50) {
+					TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorMaxRulesExceeded'));
+					return;
+				}
+
 				// 追加モード：新規ルールを末尾に追加（id は UUID を採番）
 				const newRule = {
 					id:                    TMS_COMMON.Funcs.GenerateUUID(),
+					name:                  TMS_COMMON.Funcs.TrimAll(elems.txtName.value),
 					pattern:               pattern,
 					patternType:           type,
 					fontFamily:            fontFamily,
@@ -726,6 +819,7 @@ const TMS_OPTIONS = {
 					activeBackgroundColor: activeBgColor
 				};
 				TMS_OPTIONS.State.rules.push(newRule);
+				TMS_OPTIONS.State.formDirty = false;
 				TMS_OPTIONS.UI.ClearForm();
 			}
 
@@ -751,6 +845,7 @@ const TMS_OPTIONS = {
 			// 変更前の値を深さ 1 のコピーとして保持（プリミティブのみのため shallow で十分）
 			TMS_OPTIONS.State.editingSnapshot = {
 				id:                    rule.id,
+				name:                  rule.name                  || '',
 				pattern:               rule.pattern,
 				patternType:           rule.patternType,
 				fontFamily:            rule.fontFamily,
@@ -776,9 +871,11 @@ const TMS_OPTIONS = {
 			TMS_OPTIONS.UI.ClearError();
 			if (TMS_OPTIONS.State.mode === 'edit' && TMS_OPTIONS.State.editingSnapshot) {
 				TMS_OPTIONS.UI.PopulateFormFromRule(TMS_OPTIONS.State.editingSnapshot);
+				// PopulateFormFromRule が formDirty = false をセットする
 				return;
 			}
 			TMS_OPTIONS.UI.ClearForm();
+			// ClearForm が formDirty = false をセットする
 		},
 
 		/**
@@ -814,6 +911,48 @@ const TMS_OPTIONS = {
 
 			TMS_OPTIONS.UI.RenderRuleList();
 			await TMS_OPTIONS.Handlers.PersistRules();
+		},
+
+		/**
+		 * 複写ボタンのクリックハンドラ（仕様書 §5.3）。
+		 * 対象ルールの全項目をフォームへ複写し、追加モード（新規作成）として準備する。
+		 * 更新モード中に押下された場合も追加モードへ切り替える。
+		 * @param {number} index - 複写元のインデックス
+		 * @returns {void}
+		 */
+		OnDuplicateRule: function (index) {
+			const rules = TMS_OPTIONS.State.rules;
+			if (index < 0 || index >= rules.length) {
+				return;
+			}
+
+			// 防御的二重チェック（disabled を外して押下された場合の保険）
+			if (rules.length >= 50) {
+				TMS_OPTIONS.UI.ShowError(TMS_COMMON.Funcs.GetMsg('errorMaxRulesExceeded'));
+				return;
+			}
+
+			// 入力中チェック（formDirty の場合のみ confirm）
+			if (TMS_OPTIONS.State.formDirty) {
+				if (!window.confirm(TMS_COMMON.Funcs.GetMsg('confirmDiscardForCopy'))) {
+					return;
+				}
+			}
+
+			const sourceRule = rules[index];
+
+			// モード遷移（追加モードへ）
+			TMS_OPTIONS.State.mode            = 'add';
+			TMS_OPTIONS.State.editingIndex    = -1;
+			TMS_OPTIONS.State.editingSnapshot = null;
+			TMS_OPTIONS.UI.ApplyModeLabels();
+
+			// フォームへ複写元の値を反映（formDirty は PopulateFormFromRule が false にリセット）
+			TMS_OPTIONS.UI.ClearForm();
+			TMS_OPTIONS.UI.PopulateFormFromRule(sourceRule);
+
+			// PopulateFormFromRule が formDirty = false をセット済みのため追加不要
+			TMS_OPTIONS.UI.ClearError();
 		},
 
 		/**
@@ -918,7 +1057,7 @@ const TMS_OPTIONS = {
 			}
 			const $txt   = $('#' + txtId);
 			const rgb6   = e.target.value;   // #rrggbb
-			const curVal = String($txt.val()).trim();
+			const curVal = TMS_COMMON.Funcs.TrimAll(String($txt.val()));
 			// 現在のテキスト値からαを取得して引き継ぐ
 			const alphaPct = TMS_OPTIONS.Validation.ValidateColor(curVal)
 				? TMS_OPTIONS.Validation.ExtractAlpha(curVal)
@@ -974,8 +1113,8 @@ const TMS_OPTIONS = {
 				'tmTxtActiveFontColor': { picker: 'tmColorActiveFont', range: 'tmRangeActiveFont', label: 'tmAlphaActiveFontLabel' },
 				'tmTxtActiveBgColor':   { picker: 'tmColorActiveBg',   range: 'tmRangeActiveBg',   label: 'tmAlphaActiveBgLabel' }
 			};
-			const txtId  = e.target.id;
-			const ids    = pairMap[txtId];
+			const txtId   = e.target.id;
+			const ids     = pairMap[txtId];
 			if (!ids) {
 				return;
 			}
@@ -983,7 +1122,7 @@ const TMS_OPTIONS = {
 			const $picker = $('#' + ids.picker);
 			const $range  = $('#' + ids.range);
 			const $label  = $('#' + ids.label);
-			const val     = String($txt.val()).trim();
+			const val     = TMS_COMMON.Funcs.TrimAll(String($txt.val()));
 
 			if (val === '') {
 				$picker.val('#ffffff');
@@ -1016,8 +1155,8 @@ const TMS_OPTIONS = {
 				'tmRangeActiveFont': { txt: 'tmTxtActiveFontColor', picker: 'tmColorActiveFont', label: 'tmAlphaActiveFontLabel' },
 				'tmRangeActiveBg':   { txt: 'tmTxtActiveBgColor',   picker: 'tmColorActiveBg',   label: 'tmAlphaActiveBgLabel' }
 			};
-			const rangeId  = e.target.id;
-			const ids      = pairMap[rangeId];
+			const rangeId = e.target.id;
+			const ids     = pairMap[rangeId];
 			if (!ids) {
 				return;
 			}
@@ -1029,7 +1168,7 @@ const TMS_OPTIONS = {
 			$label.text(alphaPct + '%');
 
 			// テキスト欄が有効な色ならピッカーの RGB + 新 α でテキストを更新
-			const curVal = String($txt.val()).trim();
+			const curVal = TMS_COMMON.Funcs.TrimAll(String($txt.val()));
 			if (curVal === '') {
 				return;
 			}
@@ -1039,6 +1178,15 @@ const TMS_OPTIONS = {
 				$txt.val(TMS_OPTIONS.Validation.BuildColorWithAlpha(rgb6, alphaPct));
 				$txt.removeClass('tm-invalid');
 			}
+		},
+
+		/**
+		 * フォーム入力要素のdirtyフラグ更新ハンドラ。
+		 * パターン名・URL パターン・各カラー系入力欄の input/change イベントに登録する。
+		 * @returns {void}
+		 */
+		OnFormInputDirty: function () {
+			TMS_OPTIONS.State.formDirty = true;
 		}
 	},
 
@@ -1071,12 +1219,26 @@ const TMS_OPTIONS = {
 
 		// storage.sync からルール読込（未保存なら空配列）
 		try {
-			const result            = await browser.storage.sync.get('rules');
-			TMS_OPTIONS.State.rules = Array.isArray(result.rules) ? result.rules : [];
+			const result = await browser.storage.sync.get('rules');
+			let rules    = Array.isArray(result.rules) ? result.rules : [];
+
+			// v1.2.0: 件数上限チェック（50件超過時は強制切詰 → 永続化）
+			if (rules.length > 50) {
+				const excess = rules.length - 50;
+				alert(TMS_COMMON.Funcs.GetMsg('errorMaxRulesExceededOnLoad',
+					[String(rules.length), String(excess)]));
+				rules = rules.slice(0, 50);
+				await browser.storage.sync.set({ rules });
+			}
+
+			TMS_OPTIONS.State.rules = rules;
 		} catch (e) {
 			console.error('ルール読み込みに失敗しました:', e);
 			TMS_OPTIONS.State.rules = [];
 		}
+
+		// formDirty の初期化（起動直後はユーザー入力なし）
+		TMS_OPTIONS.State.formDirty = false;
 
 		// 初期描画
 		TMS_OPTIONS.UI.RenderRuleList();
@@ -1103,6 +1265,25 @@ const TMS_OPTIONS = {
 
 		// テーマ切替トグル（change で即永続化＋反映）
 		$(elems.chkTheme).on('change', H.OnThemeChange);
+
+		// dirty フラグ管理（仕様書 §8.3 の全入力要素）
+		$(elems.txtName).on('input', H.OnFormInputDirty);
+		$(elems.txtPattern).on('input', H.OnFormInputDirty);
+		$(elems.radPrefix).on('change', H.OnFormInputDirty);
+		$(elems.radRegexp).on('change', H.OnFormInputDirty);
+		$(elems.txtFont).on('input', H.OnFormInputDirty);
+		$(elems.txtFontColor).on('input', H.OnFormInputDirty);
+		$(elems.colorFont).on('change', H.OnFormInputDirty);
+		$(elems.rangeFont).on('input', H.OnFormInputDirty);
+		$(elems.txtBgColor).on('input', H.OnFormInputDirty);
+		$(elems.colorBg).on('change', H.OnFormInputDirty);
+		$(elems.rangeBg).on('input', H.OnFormInputDirty);
+		$(elems.txtActiveFontColor).on('input', H.OnFormInputDirty);
+		$(elems.colorActiveFont).on('change', H.OnFormInputDirty);
+		$(elems.rangeActiveFont).on('input', H.OnFormInputDirty);
+		$(elems.txtActiveBgColor).on('input', H.OnFormInputDirty);
+		$(elems.colorActiveBg).on('change', H.OnFormInputDirty);
+		$(elems.rangeActiveBg).on('input', H.OnFormInputDirty);
 
 		// フォントプレビュー（フォント欄の入力でリアルタイム更新）
 		$(elems.txtFont).on('input', TMS_OPTIONS.UI.UpdateFontPreview);
@@ -1132,6 +1313,11 @@ const TMS_OPTIONS = {
 		$list.on('click', '.tm-btn-delete', function () {
 			const idx = parseInt($(this).attr('data-index'), 10);
 			H.OnDeleteRule(idx);
+		});
+
+		$list.on('click', '.tm-btn-duplicate', function () {
+			const idx = parseInt($(this).attr('data-index'), 10);
+			H.OnDuplicateRule(idx);
 		});
 
 		$list.on('dragstart', '.tm-rule-row', function (e) {
