@@ -15,10 +15,17 @@ Firefox 拡張機能「TST タブカラー」（tst-tab-color）。[Tree Style T
 
 ## 主要ドキュメント
 
-- `docs/010_要件定義書.md` / `docs/030_実装計画書.md` — v1.0.0 時点の要件・計画（以降のバージョンでは更新せず、差分仕様書で管理）
-- `docs/040_v1.1.0_追加仕様書.md` — v1.1.0 の差分仕様。**以降のバージョンアップ時も同形式（`docs/NNN_vX.Y.Z_追加仕様書.md`）でファイルを新設する方針**
-- `docs/100_コーディングルール.md` — id / CSS クラス命名規則等
-- `History.md` — リリース履歴
+設計ドキュメント類は Obsidian 保管庫（リポジトリ外）へ移動済み。バージョン別フォルダで管理。
+
+- 保管庫ルート: `E:\090_Obsidian\TmObsidian02_PublicDocs\0020_設計ドキュメント\0030_Firefoxアドオン_TSTタブカラー\`
+- ワークスペース: `E:\090_Obsidian\TmObsidian02_PublicDocs\TmObsidian02_PublicDocs.code-workspace`
+- `v1.0.0/010_要件定義書.md` / `v1.0.0/020_機能設計書.md` / `v1.0.0/030_実装計画書.md` — v1.0.0 時点の要件・設計・計画（以降のバージョンでは更新せず、差分仕様書で管理）
+- `v1.0.0/090_セッション引継ぎ_課題1_パフォーマンス.md` — v1.0.0 のパフォーマンス課題引継ぎメモ
+- `v1.1.0/010_v1.1.0_追加仕様書.md` — v1.1.0 の差分仕様
+- `v1.2.0/010_v1.2.0_機能追加要望書.md` — v1.2.0 の機能追加要望
+- **以降のバージョンアップ時もバージョン別フォルダ（`vX.Y.Z/`）配下に追加仕様書等を新設する方針**
+- 共通コーディング規約: `E:\090_Obsidian\TmObsidian02_PublicDocs\0020_設計ドキュメント\0000_共通ルール\010_フロントエンド\010_コーディング規約（フロントエンド編）.md`（旧 `docs/100_コーディングルール.md` 相当。id / CSS クラス命名規則等）
+- リポジトリ内に残るドキュメント: `History.md`（リリース履歴）, `README.md`
 
 ## コーディング規約（抜粋）
 
@@ -26,7 +33,7 @@ Firefox 拡張機能「TST タブカラー」（tst-tab-color）。[Tree Style T
 - **CSS クラス**は `tm-` 接頭辞、**DOM id** は `tm` 接頭辞のキャメルケース（例: `tmTxtPattern`）
 - **ルールクラス**は `tm-rule-{index}` 形式（`TMS_COMMON.Const.CSS_CLASS_PREFIX + n`）
 - **凍結ポリシー**: `State` は `Object.seal`、メソッド群は `DeepFreeze`、名前空間自体も `Object.freeze`
-- 詳細は `docs/100_コーディングルール.md` を参照
+- 詳細は Obsidian 保管庫の `0000_共通ルール/010_フロントエンド/010_コーディング規約（フロントエンド編）.md` を参照
 
 ## ビルド・配布
 
@@ -40,4 +47,4 @@ npm run build:zip   # → dist/tst-tab-color-<version>.zip
 
 - `src/lib/jquery.min.js` の `innerHTML` 警告 3 件は jQuery 本体のものでブロックしない警告。AMO 審査担当者宛メモで説明済み
 - `browser_specific_settings.gecko.data_collection_permissions` は新規拡張で必須。本拡張は `{"required": ["none"]}` を指定（オブジェクト形式、配列は NG）
-- UI 変更を加えたら `docs/040_` 以降の差分仕様書・`README.md`・`History.md` の整合性も確認すること
+- UI 変更を加えたら Obsidian 保管庫内の該当バージョン（`vX.Y.Z/`）の差分仕様書・`README.md`・`History.md` の整合性も確認すること
