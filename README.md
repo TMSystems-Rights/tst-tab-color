@@ -8,14 +8,14 @@ Apply your chosen font, font color, and background color (with optional active/h
 
 ### ＝＝＝ ルール設定画面（ダーク） ＝＝＝
 追加モード：
-<img width="2496" height="1439" alt="image" src="https://github.com/user-attachments/assets/c1a7acee-c0ce-4032-a4f4-90de9fcb136b" />
+<img width="3051" height="1608" alt="image" src="https://github.com/user-attachments/assets/38f41f99-71d8-4c00-979a-81d7542e5c87" />
 
 編集モード：
-<img width="2496" height="1439" alt="image" src="https://github.com/user-attachments/assets/c2ebc285-5a05-4e0c-8b24-ee51a3eab8de" />
+<img width="3051" height="1608" alt="image" src="https://github.com/user-attachments/assets/4fca9821-a5d6-476b-a280-baa8c7d8f0ac" />
 
 ### ＝＝＝ ルール設定画面（ライト） ＝＝＝
 編集モード：
-<img width="2496" height="1439" alt="image" src="https://github.com/user-attachments/assets/32895281-8cb8-40f3-9611-134cc26987bd" />
+<img width="3051" height="1608" alt="image" src="https://github.com/user-attachments/assets/20add7f5-0ca5-4021-92e4-d63b07295f24" />
 
 ### ＝＝＝ ポップアップ（進捗表示） ＝＝＝
 <img width="576" height="297" alt="image" src="https://github.com/user-attachments/assets/57353b87-6025-4bc1-9007-4e79a59a6418" />
