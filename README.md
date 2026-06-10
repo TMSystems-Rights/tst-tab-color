@@ -8,14 +8,14 @@ Apply your chosen font, font color, and background color (with optional active/h
 
 ### ＝＝＝ ルール設定画面（ダーク） ＝＝＝
 追加モード：
-<img width="3051" height="1608" alt="image" src="https://github.com/user-attachments/assets/38f41f99-71d8-4c00-979a-81d7542e5c87" />
+<img width="3199" height="1828" alt="image" src="https://github.com/user-attachments/assets/57832f95-8f6f-4aca-a141-e840c1b9d903" />
 
 編集モード：
-<img width="3051" height="1608" alt="image" src="https://github.com/user-attachments/assets/4fca9821-a5d6-476b-a280-baa8c7d8f0ac" />
+<img width="3199" height="2021" alt="image" src="https://github.com/user-attachments/assets/92554527-76fa-4c51-b0e6-52e338911b4e" />
 
 ### ＝＝＝ ルール設定画面（ライト） ＝＝＝
 編集モード：
-<img width="3051" height="1608" alt="image" src="https://github.com/user-attachments/assets/20add7f5-0ca5-4021-92e4-d63b07295f24" />
+<img width="3199" height="2021" alt="image" src="https://github.com/user-attachments/assets/032a737a-3726-48c4-add1-465630785f55" />
 
 ### ＝＝＝ ポップアップ（進捗表示） ＝＝＝
 <img width="576" height="297" alt="image" src="https://github.com/user-attachments/assets/57353b87-6025-4bc1-9007-4e79a59a6418" />
@@ -47,7 +47,7 @@ Apply your chosen font, font color, and background color (with optional active/h
     - `[削除]` ボタンは誤クリック防止のため常に確認ダイアログを表示します（ルール名または URL パターンを併記）。入力中の変更内容がある場合は破棄＋削除を一文にまとめた文言で確認します。
 - **URL とタブ名の複合マッチ (Combined URL + title matching) — v1.4.0**
     - ルールごとに **URL パターン** と **タブ名キーワード** を独立して指定できます。それぞれ専用のテキストボックスと種別ラジオ（前方一致／部分一致／正規表現）を備えます。
-    - URL のみ入力 → URL のみで判定。タブ名のみ入力 → タブ名のみで判定。**両方入力 → AND 条件**（例: YouTube 動画 URL かつタブ名に「プリコネ」を含むタブ）。
+    - URL のみ入力 → URL のみで判定。タブ名のみ入力 → タブ名のみで判定。**両方入力 → AND 条件**（例: YouTube 動画 URL かつタブ名に「ショッピング」を含むタブ）。
     - タブ名パターンが 1 件も登録されていない場合は、タイトル変更イベントを無視し、URL ルールのみの運用でのパフォーマンスを維持します。
     - v1.3.0 以前のルール（`matchTarget` + 単一 `pattern`）は読み込み時に自動変換されます。
 - **部分一致の追加 (Contains match) — v1.3.0**
@@ -92,7 +92,7 @@ Apply your chosen font, font color, and background color (with optional active/h
 3.  **「ルール追加」** セクションで下記を入力し **[新規登録]** を押すとルールが追加されます。
     - **パターン名**（必須。最大 50 文字、重複不可）— ルールを識別するための名前です
     - **URL パターン**（任意）と **URL 種別**（前方一致 / 部分一致 / 正規表現）
-    - **タブ名キーワード**（任意）と **タブ名種別**（前方一致 / 部分一致 / 正規表現）— 少なくとも一方は必須（v1.4.0）
+    - **タブ名キーワード**（任意）と **タブ名種別**（前方一致 / 部分一致 / 正規表現） ※URLパターン/タブ名キーワードについては、いずれか入力必須（v1.4.0）
     - **フォント**（任意。例: `"Meiryo", sans-serif`）— 入力すると直下にプレビューが表示されます
     - **フォント色**（任意。例: `#ffffff` / `#ffffff80`）
     - **背景色**（任意。例: `#1e3a8a` / `#1e3a8a80`）
