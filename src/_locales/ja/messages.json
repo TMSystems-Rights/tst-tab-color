@@ -4,7 +4,7 @@
 		"description": "拡張機能の名前"
 	},
 	"extDescription": {
-		"message": "URLパターンに合致するタブの色をTSTサイドバーで変更します",
+		"message": "URL・タブ名パターンに合致するタブの色をTSTサイドバーで変更します",
 		"description": "拡張機能の説明"
 	},
 	"optionsTitle": {
@@ -38,6 +38,46 @@
 	"optionsLabelRegexp": {
 		"message": "正規表現",
 		"description": "パターン種別：正規表現"
+	},
+	"optionsLabelMatchTarget": {
+		"message": "対象",
+		"description": "マッチ対象選択欄のラベル／ルール一覧の列見出し"
+	},
+	"optionsLabelTargetUrl": {
+		"message": "URL",
+		"description": "マッチ対象：URL"
+	},
+	"optionsLabelTargetTitle": {
+		"message": "タブ名",
+		"description": "マッチ対象：タブ名"
+	},
+	"optionsLabelPatternTitle": {
+		"message": "タブ名キーワード",
+		"description": "タブ名マッチ時のパターン入力欄ラベル"
+	},
+	"optionsLabelContains": {
+		"message": "部分一致",
+		"description": "パターン種別：部分一致"
+	},
+	"optionsLabelUrlPatternType": {
+		"message": "URL種別",
+		"description": "URLパターン種別選択欄のラベル／ルール一覧の列見出し（1段目）"
+	},
+	"optionsLabelTitlePatternType": {
+		"message": "タブ名種別",
+		"description": "タブ名パターン種別選択欄のラベル／ルール一覧の列見出し（2段目）"
+	},
+	"optionsLabelPatternListSub": {
+		"message": "URL／タブ名",
+		"description": "ルール一覧パターン列のヘッダ2段目"
+	},
+	"optionsListUrlPrefix": {
+		"message": "URL: ",
+		"description": "ルール一覧での URL パターン行の接頭辞"
+	},
+	"optionsListTitlePrefix": {
+		"message": "タブ名: ",
+		"description": "ルール一覧でのタブ名パターン行の接頭辞"
 	},
 	"optionsLabelFontFamily": {
 		"message": "フォント",
@@ -76,8 +116,12 @@
 		"description": "保存成功メッセージ（登録・更新・削除・並び替え時に表示）"
 	},
 	"errorPatternEmpty": {
-		"message": "URLパターンを入力してください",
-		"description": "URLパターン未入力エラー"
+		"message": "パターンを入力してください",
+		"description": "パターン未入力エラー"
+	},
+	"errorPatternBothEmpty": {
+		"message": "URLパターンまたはタブ名キーワードのいずれかを入力してください",
+		"description": "URL・タブ名パターンが両方未入力のエラー"
 	},
 	"errorInvalidRegexp": {
 		"message": "正規表現が無効です",

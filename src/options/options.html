@@ -54,9 +54,12 @@
 							<th class="tm-col-handle"></th>
 							<th class="tm-col-pattern">
 								<span class="tm-th-line1" data-i18n="optionsLabelPatternName">パターン名</span>
-								<span class="tm-th-line2" data-i18n="optionsLabelPattern">URLパターン</span>
+								<span class="tm-th-line2" data-i18n="optionsLabelPatternListSub">URL／タブ名</span>
 							</th>
-							<th class="tm-col-type"      data-i18n="optionsLabelPatternType">種別</th>
+							<th class="tm-col-type">
+								<span class="tm-th-line1" data-i18n="optionsLabelUrlPatternType">URL種別</span>
+								<span class="tm-th-line2" data-i18n="optionsLabelTitlePatternType">タブ名種別</span>
+							</th>
 							<th class="tm-col-font"      data-i18n="optionsLabelFontFamily">フォント</th>
 							<th class="tm-col-fontcolor">
 								<span class="tm-th-line1" data-i18n="optionsLabelFontColor">フォント色</span>
@@ -87,18 +90,40 @@
 					<label for="tmTxtName" data-i18n="optionsLabelPatternName">パターン名</label>
 					<input type="text" id="tmTxtName" maxlength="50" class="tm-input-name" />
 
-					<label for="tmTxtPattern" data-i18n="optionsLabelPattern">URLパターン</label>
-					<input type="text" id="tmTxtPattern" class="tm-input-pattern" />
+					<label for="tmTxtUrlPattern" data-i18n="optionsLabelPattern">URLパターン</label>
+					<input type="text" id="tmTxtUrlPattern" class="tm-input-pattern" />
 
-					<span class="tm-form-label" data-i18n="optionsLabelPatternType">種別</span>
+					<span class="tm-form-label" data-i18n="optionsLabelUrlPatternType">URL種別</span>
 					<div class="tm-radio-group">
 						<label>
-							<input type="radio" name="tmPatternType" id="tmRadPrefix" value="prefix" checked />
-							<!-- ラジオの表示文字は <span> に入れて data-i18n を付与（SetDocumentLocale が textContent を書き換えるため） -->
+							<input type="radio" name="tmUrlPatternType" id="tmRadUrlPrefix" value="prefix" checked />
 							<span data-i18n="optionsLabelPrefix">前方一致</span>
 						</label>
 						<label>
-							<input type="radio" name="tmPatternType" id="tmRadRegexp" value="regexp" />
+							<input type="radio" name="tmUrlPatternType" id="tmRadUrlContains" value="contains" />
+							<span data-i18n="optionsLabelContains">部分一致</span>
+						</label>
+						<label>
+							<input type="radio" name="tmUrlPatternType" id="tmRadUrlRegexp" value="regexp" />
+							<span data-i18n="optionsLabelRegexp">正規表現</span>
+						</label>
+					</div>
+
+					<label for="tmTxtTitlePattern" data-i18n="optionsLabelPatternTitle">タブ名キーワード</label>
+					<input type="text" id="tmTxtTitlePattern" class="tm-input-pattern" />
+
+					<span class="tm-form-label" data-i18n="optionsLabelTitlePatternType">タブ名種別</span>
+					<div class="tm-radio-group">
+						<label>
+							<input type="radio" name="tmTitlePatternType" id="tmRadTitlePrefix" value="prefix" checked />
+							<span data-i18n="optionsLabelPrefix">前方一致</span>
+						</label>
+						<label>
+							<input type="radio" name="tmTitlePatternType" id="tmRadTitleContains" value="contains" />
+							<span data-i18n="optionsLabelContains">部分一致</span>
+						</label>
+						<label>
+							<input type="radio" name="tmTitlePatternType" id="tmRadTitleRegexp" value="regexp" />
 							<span data-i18n="optionsLabelRegexp">正規表現</span>
 						</label>
 					</div>

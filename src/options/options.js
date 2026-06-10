@@ -50,11 +50,21 @@ const TMS_OPTIONS = {
 		/** @type {HTMLInputElement|null} パターン名のテキストボックス */
 		txtName:           null,
 		/** @type {HTMLInputElement|null} URLパターンのテキストボックス */
-		txtPattern:        null,
-		/** @type {HTMLInputElement|null} 前方一致ラジオボタン */
-		radPrefix:         null,
-		/** @type {HTMLInputElement|null} 正規表現ラジオボタン */
-		radRegexp:         null,
+		txtUrlPattern:     null,
+		/** @type {HTMLInputElement|null} URLパターン: 前方一致ラジオ */
+		radUrlPrefix:      null,
+		/** @type {HTMLInputElement|null} URLパターン: 部分一致ラジオ */
+		radUrlContains:    null,
+		/** @type {HTMLInputElement|null} URLパターン: 正規表現ラジオ */
+		radUrlRegexp:      null,
+		/** @type {HTMLInputElement|null} タブ名キーワードのテキストボックス */
+		txtTitlePattern:   null,
+		/** @type {HTMLInputElement|null} タブ名: 前方一致ラジオ */
+		radTitlePrefix:    null,
+		/** @type {HTMLInputElement|null} タブ名: 部分一致ラジオ */
+		radTitleContains:  null,
+		/** @type {HTMLInputElement|null} タブ名: 正規表現ラジオ */
+		radTitleRegexp:    null,
 		/** @type {HTMLInputElement|null} フォント名テキストボックス */
 		txtFont:           null,
 		/** @type {HTMLInputElement|null} フォント色テキストボックス */
@@ -118,9 +128,14 @@ const TMS_OPTIONS = {
 		 */
 		Init: function () {
 			this.txtName              = document.getElementById('tmTxtName');
-			this.txtPattern           = document.getElementById('tmTxtPattern');
-			this.radPrefix            = document.getElementById('tmRadPrefix');
-			this.radRegexp            = document.getElementById('tmRadRegexp');
+			this.txtUrlPattern        = document.getElementById('tmTxtUrlPattern');
+			this.radUrlPrefix         = document.getElementById('tmRadUrlPrefix');
+			this.radUrlContains       = document.getElementById('tmRadUrlContains');
+			this.radUrlRegexp         = document.getElementById('tmRadUrlRegexp');
+			this.txtTitlePattern      = document.getElementById('tmTxtTitlePattern');
+			this.radTitlePrefix       = document.getElementById('tmRadTitlePrefix');
+			this.radTitleContains     = document.getElementById('tmRadTitleContains');
+			this.radTitleRegexp       = document.getElementById('tmRadTitleRegexp');
 			this.txtFont              = document.getElementById('tmTxtFont');
 			this.txtFontColor         = document.getElementById('tmTxtFontColor');
 			this.colorFont            = document.getElementById('tmColorFont');
@@ -187,7 +202,7 @@ const TMS_OPTIONS = {
 		/**
 		 * URLパターンのバリデーション。必須チェックと正規表現構文チェックを行う
 		 * @param {string} pattern - URLパターン文字列
-		 * @param {string} type - パターン種別（'prefix' | 'regexp'）
+		 * @param {string} type - パターン種別（'prefix' | 'contains' | 'regexp'）
 		 * @returns {{valid: boolean, message: string}} 検証結果（invalid 時はエラーメッセージ付き）
 		 */
 		ValidatePattern: function (pattern, type) {
@@ -203,6 +218,41 @@ const TMS_OPTIONS = {
 				}
 			}
 			return { valid: true, message: '' };
+		},
+
+		/**
+		 * URL パターンとタブ名パターンをまとめてバリデーションする。
+		 * 少なくとも一方は必須。入力がある側のみ構文チェックを行う。
+		 * @param {string} urlPattern - URLパターン
+		 * @param {string} urlType - URL種別
+		 * @param {string} titlePattern - タブ名パターン
+		 * @param {string} titleType - タブ名種別
+		 * @returns {{valid: boolean, message: string, field: 'both'|'url'|'title'|''}} 検証結果
+		 */
+		ValidateRulePatterns: function (urlPattern, urlType, titlePattern, titleType) {
+			const urlTrim   = TMS_COMMON.Funcs.TrimAll(urlPattern);
+			const titleTrim = TMS_COMMON.Funcs.TrimAll(titlePattern);
+
+			if (!urlTrim && !titleTrim) {
+				return {
+					valid:   false,
+					message: TMS_COMMON.Funcs.GetMsg('errorPatternBothEmpty'),
+					field:   'both'
+				};
+			}
+			if (urlTrim) {
+				const urlResult = TMS_OPTIONS.Validation.ValidatePattern(urlTrim, urlType);
+				if (!urlResult.valid) {
+					return { valid: false, message: urlResult.message, field: 'url' };
+				}
+			}
+			if (titleTrim) {
+				const titleResult = TMS_OPTIONS.Validation.ValidatePattern(titleTrim, titleType);
+				if (!titleResult.valid) {
+					return { valid: false, message: titleResult.message, field: 'title' };
+				}
+			}
+			return { valid: true, message: '', field: '' };
 		},
 
 		/**
@@ -343,22 +393,48 @@ const TMS_OPTIONS = {
 			// ドラッグハンドル列
 			$tr.append($('<td>').addClass('tm-drag-handle').text('≡'));
 
-			// URLパターン列（1段目: パターン名, 2段目: URLパターン）
-			const name         = rule.name    || '';
-			const pattern      = rule.pattern || '';
-			const $tdPattern   = $('<td>');
-			const $nameLine    = $('<span>').addClass('tm-rule-name').text(name);
-			const $patternLine = $('<span>').addClass('tm-rule-pattern').text(pattern);
-			if (pattern) {
-				$tdPattern.attr('title', name ? (name + '\n' + pattern) : pattern);
+			const norm       = TMS_COMMON.Funcs.NormalizeRule(rule);
+			const urlPat     = norm ? norm.urlPattern : '';
+			const titlePat   = norm ? norm.titlePattern : '';
+			const urlPrefix  = TMS_COMMON.Funcs.GetMsg('optionsListUrlPrefix');
+			const titlePrefix = TMS_COMMON.Funcs.GetMsg('optionsListTitlePrefix');
+
+			// パターン列（1段目: パターン名, 2段目以降: URL／タブ名）
+			const name       = norm ? norm.name : '';
+			const $tdPattern = $('<td>');
+			const $nameLine  = $('<span>').addClass('tm-rule-name').text(name);
+			$tdPattern.append($nameLine);
+			const tooltipLines = [name];
+			if (urlPat) {
+				const line = urlPrefix + urlPat;
+				$tdPattern.append($('<span>').addClass('tm-rule-pattern').text(line));
+				tooltipLines.push(line);
 			}
-			$tdPattern.append($nameLine, $patternLine);
+			if (titlePat) {
+				const line = titlePrefix + titlePat;
+				$tdPattern.append($('<span>').addClass('tm-rule-pattern').text(line));
+				tooltipLines.push(line);
+			}
+			if (tooltipLines.length > 1) {
+				$tdPattern.attr('title', tooltipLines.join('\n'));
+			}
 			$tr.append($tdPattern);
 
-			// 種別列（i18n 経由で localized 文字列を取得）
-			const typeKey   = (rule.patternType === 'prefix') ? 'optionsLabelPrefix' : 'optionsLabelRegexp';
-			const typeLabel = TMS_COMMON.Funcs.GetMsg(typeKey);
-			$tr.append($('<td>').text(typeLabel));
+			// 種別列（URL種別 / タブ名種別 の2段表示）
+			const $typeCell = $('<td>').addClass('tm-rule-type-cell');
+			if (urlPat) {
+				$typeCell.append(
+					$('<div>').addClass('tm-rule-type-row')
+						.text(TMS_OPTIONS.UI.GetPatternTypeLabel(norm.urlPatternType))
+				);
+			}
+			if (titlePat) {
+				$typeCell.append(
+					$('<div>').addClass('tm-rule-type-row')
+						.text(TMS_OPTIONS.UI.GetPatternTypeLabel(norm.titlePatternType))
+				);
+			}
+			$tr.append($typeCell);
 
 			// フォント列（URLパターン列と同じくホバーで全体を確認できるよう title 属性を付与）
 			const fontFamily = rule.fontFamily || '';
@@ -444,6 +520,67 @@ const TMS_OPTIONS = {
 		},
 
 		/**
+		 * パターン種別コードから表示ラベルを取得する。
+		 * @param {string} type - 'prefix' | 'contains' | 'regexp'
+		 * @returns {string} i18n 済みラベル
+		 */
+		GetPatternTypeLabel: function (type) {
+			if (type === 'contains') {
+				return TMS_COMMON.Funcs.GetMsg('optionsLabelContains');
+			}
+			if (type === 'regexp') {
+				return TMS_COMMON.Funcs.GetMsg('optionsLabelRegexp');
+			}
+			return TMS_COMMON.Funcs.GetMsg('optionsLabelPrefix');
+		},
+
+		/**
+		 * 種別ラジオ3つの選択状態から patternType 文字列を取得する。
+		 * @param {HTMLInputElement} radPrefix - 前方一致ラジオ
+		 * @param {HTMLInputElement} radContains - 部分一致ラジオ
+		 * @param {HTMLInputElement} radRegexp - 正規表現ラジオ
+		 * @returns {'prefix'|'contains'|'regexp'} 選択中の種別
+		 */
+		GetSelectedPatternType: function (radPrefix, radContains, radRegexp) {
+			if (radRegexp.checked) {
+				return 'regexp';
+			}
+			if (radContains.checked) {
+				return 'contains';
+			}
+			return 'prefix';
+		},
+
+		/**
+		 * 種別ラジオ3つへ patternType を反映する。
+		 * @param {HTMLInputElement} radPrefix - 前方一致ラジオ
+		 * @param {HTMLInputElement} radContains - 部分一致ラジオ
+		 * @param {HTMLInputElement} radRegexp - 正規表現ラジオ
+		 * @param {string} type - 'prefix' | 'contains' | 'regexp'
+		 * @returns {void}
+		 */
+		SetPatternTypeRadios: function (radPrefix, radContains, radRegexp, type) {
+			radPrefix.checked   = (type === 'prefix');
+			radContains.checked = (type === 'contains');
+			radRegexp.checked   = (type === 'regexp');
+		},
+
+		/**
+		 * フォームからルール保存用のパターン関連フィールドを取得する。
+		 * @returns {{urlPattern: string, urlPatternType: string, titlePattern: string, titlePatternType: string}}
+		 */
+		GetPatternFieldsFromForm: function () {
+			const elems = TMS_OPTIONS.Elements;
+			const UI    = TMS_OPTIONS.UI;
+			return {
+				urlPattern:       TMS_COMMON.Funcs.TrimAll(elems.txtUrlPattern.value),
+				urlPatternType:   UI.GetSelectedPatternType(elems.radUrlPrefix, elems.radUrlContains, elems.radUrlRegexp),
+				titlePattern:     TMS_COMMON.Funcs.TrimAll(elems.txtTitlePattern.value),
+				titlePatternType: UI.GetSelectedPatternType(elems.radTitlePrefix, elems.radTitleContains, elems.radTitleRegexp)
+			};
+		},
+
+		/**
 		 * フォントプレビューを更新する。フォント欄に値がある場合のみ表示する。
 		 * @returns {void}
 		 */
@@ -498,9 +635,10 @@ const TMS_OPTIONS = {
 			const elems = TMS_OPTIONS.Elements;
 
 			elems.txtName.value                    = '';
-			elems.txtPattern.value                 = '';
-			elems.radPrefix.checked                = true;
-			elems.radRegexp.checked                = false;
+			elems.txtUrlPattern.value              = '';
+			elems.txtTitlePattern.value            = '';
+			TMS_OPTIONS.UI.SetPatternTypeRadios(elems.radUrlPrefix, elems.radUrlContains, elems.radUrlRegexp, 'prefix');
+			TMS_OPTIONS.UI.SetPatternTypeRadios(elems.radTitlePrefix, elems.radTitleContains, elems.radTitleRegexp, 'prefix');
 			elems.txtFont.value                    = '';
 			elems.txtFontColor.value               = '';
 			elems.colorFont.value                  = '#ffffff';
@@ -524,7 +662,8 @@ const TMS_OPTIONS = {
 
 			// 赤枠解除
 			$(elems.txtName).removeClass('tm-invalid');
-			$(elems.txtPattern).removeClass('tm-invalid');
+			$(elems.txtUrlPattern).removeClass('tm-invalid');
+			$(elems.txtTitlePattern).removeClass('tm-invalid');
 			$(elems.txtFontColor).removeClass('tm-invalid');
 			$(elems.txtBgColor).removeClass('tm-invalid');
 			$(elems.txtActiveFontColor).removeClass('tm-invalid');
@@ -545,14 +684,20 @@ const TMS_OPTIONS = {
 			const toHex6       = TMS_OPTIONS.Validation.NormalizeColorToHex6;
 			const extractAlpha = TMS_OPTIONS.Validation.ExtractAlpha;
 
-			elems.txtName.value     = rule.name    || '';
-			elems.txtPattern.value  = rule.pattern || '';
-			elems.radPrefix.checked = (rule.patternType === 'prefix');
-			elems.radRegexp.checked = (rule.patternType === 'regexp');
-			elems.txtFont.value     = rule.fontFamily || '';
+			const norm = TMS_COMMON.Funcs.NormalizeRule(rule);
+			if (!norm) {
+				return;
+			}
+			const UI = TMS_OPTIONS.UI;
+			elems.txtName.value        = norm.name;
+			elems.txtUrlPattern.value  = norm.urlPattern;
+			elems.txtTitlePattern.value = norm.titlePattern;
+			UI.SetPatternTypeRadios(elems.radUrlPrefix, elems.radUrlContains, elems.radUrlRegexp, norm.urlPatternType);
+			UI.SetPatternTypeRadios(elems.radTitlePrefix, elems.radTitleContains, elems.radTitleRegexp, norm.titlePatternType);
+			elems.txtFont.value        = norm.fontFamily;
 
 			// フォント色
-			const fc                         = rule.fontColor || '';
+			const fc                         = norm.fontColor || '';
 			elems.txtFontColor.value         = fc;
 			elems.colorFont.value            = fc ? toHex6(fc) : '#ffffff';
 			const fcA                        = fc ? extractAlpha(fc) : 100;
@@ -560,7 +705,7 @@ const TMS_OPTIONS = {
 			elems.alphaFontLabel.textContent = fcA + '%';
 
 			// 背景色
-			const bc                       = rule.backgroundColor || '';
+			const bc                       = norm.backgroundColor || '';
 			elems.txtBgColor.value         = bc;
 			elems.colorBg.value            = bc ? toHex6(bc) : '#ffffff';
 			const bcA                      = bc ? extractAlpha(bc) : 100;
@@ -568,7 +713,7 @@ const TMS_OPTIONS = {
 			elems.alphaBgLabel.textContent = bcA + '%';
 
 			// アクティブ時フォント色
-			const afc                              = rule.activeFontColor || '';
+			const afc                              = norm.activeFontColor || '';
 			elems.txtActiveFontColor.value         = afc;
 			elems.colorActiveFont.value            = afc ? toHex6(afc) : '#ffffff';
 			const afcA                             = afc ? extractAlpha(afc) : 100;
@@ -576,7 +721,7 @@ const TMS_OPTIONS = {
 			elems.alphaActiveFontLabel.textContent = afcA + '%';
 
 			// アクティブ時背景色
-			const abc                            = rule.activeBackgroundColor || '';
+			const abc                            = norm.activeBackgroundColor || '';
 			elems.txtActiveBgColor.value         = abc;
 			elems.colorActiveBg.value            = abc ? toHex6(abc) : '#ffffff';
 			const abcA                           = abc ? extractAlpha(abc) : 100;
@@ -588,7 +733,8 @@ const TMS_OPTIONS = {
 
 			// 赤枠を解除（過去の不正入力履歴を持ち越さない）
 			$(elems.txtName).removeClass('tm-invalid');
-			$(elems.txtPattern).removeClass('tm-invalid');
+			$(elems.txtUrlPattern).removeClass('tm-invalid');
+			$(elems.txtTitlePattern).removeClass('tm-invalid');
 			$(elems.txtFontColor).removeClass('tm-invalid');
 			$(elems.txtBgColor).removeClass('tm-invalid');
 			$(elems.txtActiveFontColor).removeClass('tm-invalid');
@@ -711,10 +857,9 @@ const TMS_OPTIONS = {
 		OnAddRule: async function () {
 			TMS_OPTIONS.UI.ClearError();
 
-			const elems   = TMS_OPTIONS.Elements;
-			const TrimAll = TMS_COMMON.Funcs.TrimAll;
-			const pattern = TrimAll(elems.txtPattern.value);
-			const type    = elems.radRegexp.checked ? 'regexp' : 'prefix';
+			const elems        = TMS_OPTIONS.Elements;
+			const TrimAll      = TMS_COMMON.Funcs.TrimAll;
+			const patternFields = TMS_OPTIONS.UI.GetPatternFieldsFromForm();
 
 			// パターン名のバリデーション（必須・最大長・重複）
 			const editingIndex = TMS_OPTIONS.State.mode === 'edit' ? TMS_OPTIONS.State.editingIndex : -1;
@@ -726,14 +871,25 @@ const TMS_OPTIONS = {
 			}
 			$(elems.txtName).removeClass('tm-invalid');
 
-			// URLパターンのバリデーション（必須＋正規表現構文）
-			const patternResult = TMS_OPTIONS.Validation.ValidatePattern(pattern, type);
-			if (!patternResult.valid) {
-				$(elems.txtPattern).addClass('tm-invalid');
-				TMS_OPTIONS.UI.ShowError(patternResult.message);
+			// URL／タブ名パターンのバリデーション（少なくとも一方必須）
+			const patternsResult = TMS_OPTIONS.Validation.ValidateRulePatterns(
+				patternFields.urlPattern,
+				patternFields.urlPatternType,
+				patternFields.titlePattern,
+				patternFields.titlePatternType
+			);
+			$(elems.txtUrlPattern).removeClass('tm-invalid');
+			$(elems.txtTitlePattern).removeClass('tm-invalid');
+			if (!patternsResult.valid) {
+				if (patternsResult.field === 'both' || patternsResult.field === 'url') {
+					$(elems.txtUrlPattern).addClass('tm-invalid');
+				}
+				if (patternsResult.field === 'both' || patternsResult.field === 'title') {
+					$(elems.txtTitlePattern).addClass('tm-invalid');
+				}
+				TMS_OPTIONS.UI.ShowError(patternsResult.message);
 				return;
 			}
-			$(elems.txtPattern).removeClass('tm-invalid');
 
 			// フォント色・背景色・アクティブ色のバリデーション（ブランクは有効）
 			const fontColor       = TrimAll(elems.txtFontColor.value);
@@ -784,8 +940,10 @@ const TMS_OPTIONS = {
 				rules[idx] = {
 					id:                    rules[idx].id,
 					name:                  TMS_COMMON.Funcs.TrimAll(elems.txtName.value),
-					pattern:               pattern,
-					patternType:           type,
+					urlPattern:            patternFields.urlPattern,
+					urlPatternType:        patternFields.urlPatternType,
+					titlePattern:          patternFields.titlePattern,
+					titlePatternType:      patternFields.titlePatternType,
 					fontFamily:            fontFamily,
 					fontColor:             fontColor,
 					backgroundColor:       bgColor,
@@ -810,8 +968,10 @@ const TMS_OPTIONS = {
 				const newRule = {
 					id:                    TMS_COMMON.Funcs.GenerateUUID(),
 					name:                  TMS_COMMON.Funcs.TrimAll(elems.txtName.value),
-					pattern:               pattern,
-					patternType:           type,
+					urlPattern:            patternFields.urlPattern,
+					urlPatternType:        patternFields.urlPatternType,
+					titlePattern:          patternFields.titlePattern,
+					titlePatternType:      patternFields.titlePatternType,
 					fontFamily:            fontFamily,
 					fontColor:             fontColor,
 					backgroundColor:       bgColor,
@@ -851,17 +1011,20 @@ const TMS_OPTIONS = {
 			TMS_OPTIONS.State.mode         = 'edit';
 			TMS_OPTIONS.State.editingIndex = index;
 			// 変更前の値を深さ 1 のコピーとして保持（プリミティブのみのため shallow で十分）
-			TMS_OPTIONS.State.editingSnapshot = {
-				id:                    rule.id,
-				name:                  rule.name                  || '',
-				pattern:               rule.pattern,
-				patternType:           rule.patternType,
-				fontFamily:            rule.fontFamily,
-				fontColor:             rule.fontColor,
-				backgroundColor:       rule.backgroundColor,
-				activeFontColor:       rule.activeFontColor       || '',
-				activeBackgroundColor: rule.activeBackgroundColor || ''
-			};
+			const norm = TMS_COMMON.Funcs.NormalizeRule(rule);
+			TMS_OPTIONS.State.editingSnapshot = norm ? {
+				id:                    norm.id,
+				name:                  norm.name,
+				urlPattern:            norm.urlPattern,
+				urlPatternType:        norm.urlPatternType,
+				titlePattern:          norm.titlePattern,
+				titlePatternType:      norm.titlePatternType,
+				fontFamily:            norm.fontFamily,
+				fontColor:             norm.fontColor,
+				backgroundColor:       norm.backgroundColor,
+				activeFontColor:       norm.activeFontColor,
+				activeBackgroundColor: norm.activeBackgroundColor
+			} : null;
 
 			TMS_OPTIONS.UI.PopulateFormFromRule(rule);
 			TMS_OPTIONS.UI.ApplyModeLabels();
@@ -903,7 +1066,10 @@ const TMS_OPTIONS = {
 			// formDirty===true の場合は「入力中の内容も破棄される」旨を併記する。
 			// ルール名が未入力（v1.1.0 以前の既存ルール）の場合は URL パターンを fallback として表示。
 			const rule       = TMS_OPTIONS.State.rules[index];
-			const label      = rule.name || rule.pattern || '';
+			const norm       = TMS_COMMON.Funcs.NormalizeRule(rule);
+			const label      = norm
+				? (norm.name || norm.urlPattern || norm.titlePattern || '')
+				: '';
 			const messageKey = TMS_OPTIONS.State.formDirty
 				? 'confirmDeleteRuleAndDiscard'
 				: 'confirmDeleteRule';
@@ -1252,7 +1418,9 @@ const TMS_OPTIONS = {
 				await browser.storage.sync.set({ rules });
 			}
 
-			TMS_OPTIONS.State.rules = rules;
+			TMS_OPTIONS.State.rules = rules.map(function (r) {
+				return TMS_COMMON.Funcs.NormalizeRule(r);
+			}).filter(Boolean);
 		} catch (e) {
 			console.error('ルール読み込みに失敗しました:', e);
 			TMS_OPTIONS.State.rules = [];
@@ -1289,9 +1457,14 @@ const TMS_OPTIONS = {
 
 		// dirty フラグ管理（仕様書 §8.3 の全入力要素）
 		$(elems.txtName).on('input', H.OnFormInputDirty);
-		$(elems.txtPattern).on('input', H.OnFormInputDirty);
-		$(elems.radPrefix).on('change', H.OnFormInputDirty);
-		$(elems.radRegexp).on('change', H.OnFormInputDirty);
+		$(elems.txtUrlPattern).on('input', H.OnFormInputDirty);
+		$(elems.radUrlPrefix).on('change', H.OnFormInputDirty);
+		$(elems.radUrlContains).on('change', H.OnFormInputDirty);
+		$(elems.radUrlRegexp).on('change', H.OnFormInputDirty);
+		$(elems.txtTitlePattern).on('input', H.OnFormInputDirty);
+		$(elems.radTitlePrefix).on('change', H.OnFormInputDirty);
+		$(elems.radTitleContains).on('change', H.OnFormInputDirty);
+		$(elems.radTitleRegexp).on('change', H.OnFormInputDirty);
 		$(elems.txtFont).on('input', H.OnFormInputDirty);
 		$(elems.txtFontColor).on('input', H.OnFormInputDirty);
 		$(elems.colorFont).on('change', H.OnFormInputDirty);

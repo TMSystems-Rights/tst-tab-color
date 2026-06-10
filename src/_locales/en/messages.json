@@ -4,7 +4,7 @@
 		"description": "Name of the extension"
 	},
 	"extDescription": {
-		"message": "Changes tab colors in TST sidebar based on URL patterns",
+		"message": "Changes tab colors in TST sidebar based on URL and tab title patterns",
 		"description": "Description of the extension"
 	},
 	"optionsTitle": {
@@ -38,6 +38,46 @@
 	"optionsLabelRegexp": {
 		"message": "Regular expression",
 		"description": "Pattern type: regular expression"
+	},
+	"optionsLabelMatchTarget": {
+		"message": "Target",
+		"description": "Match target selector label / rule list column header"
+	},
+	"optionsLabelTargetUrl": {
+		"message": "URL",
+		"description": "Match target: URL"
+	},
+	"optionsLabelTargetTitle": {
+		"message": "Tab Title",
+		"description": "Match target: tab title"
+	},
+	"optionsLabelPatternTitle": {
+		"message": "Tab Title Keyword",
+		"description": "Pattern input label when matching tab title"
+	},
+	"optionsLabelContains": {
+		"message": "Contains",
+		"description": "Pattern type: contains (partial match)"
+	},
+	"optionsLabelUrlPatternType": {
+		"message": "URL Type",
+		"description": "URL pattern type selector label / rule list column header (line 1)"
+	},
+	"optionsLabelTitlePatternType": {
+		"message": "Title Type",
+		"description": "Title pattern type selector label / rule list column header (line 2)"
+	},
+	"optionsLabelPatternListSub": {
+		"message": "URL / Title",
+		"description": "Rule list pattern column header (line 2)"
+	},
+	"optionsListUrlPrefix": {
+		"message": "URL: ",
+		"description": "Prefix for URL pattern line in rule list"
+	},
+	"optionsListTitlePrefix": {
+		"message": "Title: ",
+		"description": "Prefix for title pattern line in rule list"
 	},
 	"optionsLabelFontFamily": {
 		"message": "Font",
@@ -76,8 +116,12 @@
 		"description": "Shown after register / update / delete / reorder"
 	},
 	"errorPatternEmpty": {
-		"message": "Please enter a URL pattern",
-		"description": "Error: URL pattern is empty"
+		"message": "Please enter a pattern",
+		"description": "Error: pattern is empty"
+	},
+	"errorPatternBothEmpty": {
+		"message": "Please enter a URL pattern or tab title keyword",
+		"description": "Error: both URL and title patterns are empty"
 	},
 	"errorInvalidRegexp": {
 		"message": "Invalid regular expression",

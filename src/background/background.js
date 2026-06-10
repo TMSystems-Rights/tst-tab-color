@@ -41,7 +41,13 @@ const TMS_BACKGROUND = {
 		 *   'applying'    … ルール別 add-tab-state 送信中（current=完了ルール数 / total=ルール数）
 		 *   'completed'   … 完了（elapsedMs に所要時間 ms、total にタブ総数）
 		 */
-		progress:          { stage: 'idle', current: 0, total: 0, elapsedMs: 0 }
+		progress:          { stage: 'idle', current: 0, total: 0, elapsedMs: 0 },
+		/**
+		 * @type {boolean} タブ名（title）マッチのルールが 1 件以上存在するか。
+		 * false のときは tabs.onUpdated の title 変更を無視し、URL ルールのみの運用での
+		 * パフォーマンス劣化を防ぐ。Rules.Load() 実行時に再算出される。
+		 */
+		hasTitleRules:     false
 	},
 
 	// ===================================================
@@ -66,33 +72,29 @@ const TMS_BACKGROUND = {
 				TMS_BACKGROUND.State.classCleanupCount,
 				TMS_BACKGROUND.State.rules.length
 			);
+			TMS_BACKGROUND.State.hasTitleRules = TMS_BACKGROUND.State.rules.some(
+				function (r) {
+					const norm = TMS_COMMON.Funcs.NormalizeRule(r);
+					return norm && TMS_COMMON.Funcs.TrimAll(norm.titlePattern).length > 0;
+				}
+			);
 		},
 
 		/**
-		 * URL にマッチする最初のルールを返す。マッチしなければ null を返す。
+		 * タブにマッチする最初のルールを返す。マッチしなければ null を返す。
+		 * URL パターンとタブ名パターンの両方が指定されている場合は AND 条件で評価する。
 		 * マッチ判定：配列インデックス昇順（0 が最高優先）。
-		 * @param {string} url - 評価対象の URL
+		 * @param {browser.tabs.Tab} tab - 評価対象のタブ
 		 * @param {Array} rules - ルール配列（TcRule[]）
 		 * @returns {{ rule: object, index: number }|null} マッチしたルールとインデックス、なければ null
 		 */
-		MatchRule: function (url, rules) {
-			if (!url) {
+		MatchRule: function (tab, rules) {
+			if (!tab) {
 				return null;
 			}
 			for (let i = 0; i < rules.length; i++) {
-				const rule = rules[i];
-				if (rule.patternType === 'prefix') {
-					if (url.startsWith(rule.pattern)) {
-						return { rule: rule, index: i };
-					}
-				} else if (rule.patternType === 'regexp') {
-					try {
-						if (new RegExp(rule.pattern).test(url)) {
-							return { rule: rule, index: i };
-						}
-					} catch {
-						// 不正な正規表現は無視してスキップ（バリデーションは options.js 側で実施）
-					}
+				if (TMS_COMMON.Funcs.RuleMatchesTab(tab, rules[i])) {
+					return { rule: rules[i], index: i };
 				}
 			}
 			return null;
@@ -286,7 +288,7 @@ const TMS_BACKGROUND = {
 			}
 			await TMS_BACKGROUND.Tst.ClearTabState(tab.id);
 
-			const match = TMS_BACKGROUND.Rules.MatchRule(tab.url, TMS_BACKGROUND.State.rules);
+			const match = TMS_BACKGROUND.Rules.MatchRule(tab, TMS_BACKGROUND.State.rules);
 			if (!match) {
 				return;
 			}
@@ -348,7 +350,7 @@ const TMS_BACKGROUND = {
 					continue;
 				}
 				allTabIds.push(tab.id);
-				const match = TMS_BACKGROUND.Rules.MatchRule(tab.url, rules);
+				const match = TMS_BACKGROUND.Rules.MatchRule(tab, rules);
 				if (match) {
 					if (!buckets.has(match.index)) {
 						buckets.set(match.index, []);
@@ -435,13 +437,16 @@ const TMS_BACKGROUND = {
 		},
 
 		/**
-		 * browser.tabs.onUpdated ハンドラ。URL 変更時のみ再評価
+		 * browser.tabs.onUpdated ハンドラ。URL 変更時、またはタブ名ルール存在時の title 変更時に再評価
 		 * @param {number} tabId - タブ ID
 		 * @param {object} changeInfo - 変更情報
 		 * @param {browser.tabs.Tab} tab - 更新後のタブ
 		 */
 		OnTabUpdated: function (tabId, changeInfo, tab) {
-			if (!changeInfo.url) {
+			const urlChanged   = changeInfo.url !== undefined;
+			const titleChanged = changeInfo.title !== undefined
+				&& TMS_BACKGROUND.State.hasTitleRules;
+			if (!urlChanged && !titleChanged) {
 				return;
 			}
 			TMS_BACKGROUND.Tst.ApplyRuleToTab(tab);

@@ -107,6 +107,99 @@ const TMS_COMMON = {
 		 */
 		TrimAll: function (s) {
 			return String(s ?? '').replace(/^[\s\u3000]+|[\s\u3000]+$/g, '');
+		},
+
+		/**
+		 * 文字列がパターンにマッチするか判定する。
+		 * @param {string} target - 評価対象文字列
+		 * @param {string} pattern - パターン文字列
+		 * @param {string} type - 種別（'prefix' | 'contains' | 'regexp'）
+		 * @returns {boolean} マッチすれば true
+		 */
+		MatchString: function (target, pattern, type) {
+			const t = target || '';
+			if (type === 'prefix') {
+				return t.startsWith(pattern);
+			}
+			if (type === 'contains') {
+				return t.includes(pattern);
+			}
+			if (type === 'regexp') {
+				try {
+					return new RegExp(pattern).test(t);
+				} catch {
+					return false;
+				}
+			}
+			return false;
+		},
+
+		/**
+		 * ルールオブジェクトを v1.4.0 形式（urlPattern / titlePattern 分離）に正規化する。
+		 * v1.3.0 の matchTarget + pattern、v1.2.0 以前の pattern のみも読み取り可能。
+		 * @param {object} rule - ストレージ上のルールオブジェクト
+		 * @returns {object|null} 正規化後のルール（不正時は null）
+		 */
+		NormalizeRule: function (rule) {
+			if (!rule || typeof rule !== 'object') {
+				return null;
+			}
+			const normalized = {
+				id:                    rule.id,
+				name:                  rule.name || '',
+				urlPattern:            '',
+				urlPatternType:        'prefix',
+				titlePattern:          '',
+				titlePatternType:      'prefix',
+				fontFamily:            rule.fontFamily            || '',
+				fontColor:             rule.fontColor             || '',
+				backgroundColor:       rule.backgroundColor       || '',
+				activeFontColor:       rule.activeFontColor       || '',
+				activeBackgroundColor: rule.activeBackgroundColor || ''
+			};
+
+			if ('urlPattern' in rule || 'titlePattern' in rule) {
+				normalized.urlPattern       = rule.urlPattern       || '';
+				normalized.urlPatternType   = rule.urlPatternType   || 'prefix';
+				normalized.titlePattern     = rule.titlePattern     || '';
+				normalized.titlePatternType = rule.titlePatternType || 'prefix';
+				return normalized;
+			}
+
+			if (rule.matchTarget === 'title') {
+				normalized.titlePattern     = rule.pattern     || '';
+				normalized.titlePatternType = rule.patternType || 'prefix';
+			} else {
+				normalized.urlPattern       = rule.pattern     || '';
+				normalized.urlPatternType   = rule.patternType || 'prefix';
+			}
+			return normalized;
+		},
+
+		/**
+		 * 正規化済みルールがタブにマッチするか判定する（URL とタブ名は AND 結合）。
+		 * @param {browser.tabs.Tab} tab - 評価対象タブ
+		 * @param {object} rule - ルールオブジェクト（未正規化可）
+		 * @returns {boolean} マッチすれば true
+		 */
+		RuleMatchesTab: function (tab, rule) {
+			const r        = TMS_COMMON.Funcs.NormalizeRule(rule);
+			if (!r || !tab) {
+				return false;
+			}
+			const urlPat   = TMS_COMMON.Funcs.TrimAll(r.urlPattern);
+			const titlePat = TMS_COMMON.Funcs.TrimAll(r.titlePattern);
+
+			if (!urlPat && !titlePat) {
+				return false;
+			}
+			if (urlPat && !TMS_COMMON.Funcs.MatchString(tab.url || '', urlPat, r.urlPatternType)) {
+				return false;
+			}
+			if (titlePat && !TMS_COMMON.Funcs.MatchString(tab.title || '', titlePat, r.titlePatternType)) {
+				return false;
+			}
+			return true;
 		}
 	}
 };

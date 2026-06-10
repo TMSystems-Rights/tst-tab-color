@@ -433,6 +433,23 @@ body {
 	text-overflow: ellipsis;
 }
 
+/* ルール一覧：種別列の URL／タブ名 2 段表示 */
+.tm-rule-type-cell .tm-rule-type-row {
+	display:     block;
+	font-size:   12px;
+	white-space: nowrap;
+	overflow:    hidden;
+	text-overflow: ellipsis;
+}
+
+.tm-rule-type-cell .tm-rule-type-row + .tm-rule-type-row {
+	font-size: 11px;
+	opacity:   0.8;
+	border-top: 1px solid var(--tm-border-subtle, rgba(128, 128, 128, 0.3));
+	margin-top: 2px;
+	padding-top: 2px;
+}
+
 /* 編集ボタン（一覧行） — ニュートラル配色 */
 .tm-btn-edit {
 	padding:       2px 10px;

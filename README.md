@@ -1,10 +1,10 @@
 # TST タブカラー (TST Tab Color)
 
-**Tree Style Tab (TST) のタブに、URL パターンで色付けできる Firefox 拡張機能です。**
-URL パターン（前方一致・正規表現）に合致したタブへ、指定したフォント・フォント色・背景色（アクティブ／ホバー時の色も個別指定可、透過度指定にも対応）を TST サイドバー上でリアルタイム適用します。
+**Tree Style Tab (TST) のタブに、URL・タブ名（またはその両方の AND 条件）で色付けできる Firefox 拡張機能です。**
+URL パターン・タブ名キーワード（前方一致・部分一致・正規表現）に合致したタブへ、指定したフォント・フォント色・背景色（アクティブ／ホバー時の色も個別指定可、透過度指定にも対応）を TST サイドバー上でリアルタイム適用します。
 
-**A Firefox add-on that colorizes tabs in the Tree Style Tab (TST) sidebar based on URL patterns.**
-Apply your chosen font, font color, and background color (with optional active/hover overrides and alpha transparency) to any tab whose URL matches a rule (prefix or regular expression) — updated live in the TST sidebar.
+**A Firefox add-on that colorizes tabs in the Tree Style Tab (TST) sidebar based on URL patterns, tab titles, or both (AND).**
+Apply your chosen font, font color, and background color (with optional active/hover overrides and alpha transparency) to tabs matching your rules — updated live in the TST sidebar.
 
 ### ＝＝＝ ルール設定画面（ダーク） ＝＝＝
 追加モード：
@@ -34,7 +34,7 @@ Apply your chosen font, font color, and background color (with optional active/h
 ## 主な機能 (Features)
 
 - **パターン名による識別 (Named rules) — v1.2.0**
-    - 各ルールに識別用の「パターン名」（最大 50 文字）を設定できます。ルール一覧の 1 段目にパターン名、2 段目に URL パターンを表示し、多数のルールを管理しやすくなりました。
+    - 各ルールに識別用の「パターン名」（最大 50 文字）を設定できます。ルール一覧の 1 段目にパターン名、2 段目以降に URL／タブ名パターンを表示し、多数のルールを管理しやすくなりました。
     - パターン名は重複不可（前後の全角・半角空白除去後、大文字小文字を区別せずに比較）。
     - 既存ルールは名前なしのまま引き継ぎます（編集時に入力が必要）。
 - **複写ボタンによる類似ルール作成 (Rule duplication) — v1.2.0**
@@ -45,9 +45,16 @@ Apply your chosen font, font color, and background color (with optional active/h
 - **誤操作防止の確認ダイアログ (Confirmation dialogs) — v1.2.0**
     - `[編集]` `[複写]` ボタンは、入力中の変更内容がある場合に「入力中の内容は破棄されます。よろしいですか？」を表示してから処理に進みます。
     - `[削除]` ボタンは誤クリック防止のため常に確認ダイアログを表示します（ルール名または URL パターンを併記）。入力中の変更内容がある場合は破棄＋削除を一文にまとめた文言で確認します。
+- **URL とタブ名の複合マッチ (Combined URL + title matching) — v1.4.0**
+    - ルールごとに **URL パターン** と **タブ名キーワード** を独立して指定できます。それぞれ専用のテキストボックスと種別ラジオ（前方一致／部分一致／正規表現）を備えます。
+    - URL のみ入力 → URL のみで判定。タブ名のみ入力 → タブ名のみで判定。**両方入力 → AND 条件**（例: YouTube 動画 URL かつタブ名に「プリコネ」を含むタブ）。
+    - タブ名パターンが 1 件も登録されていない場合は、タイトル変更イベントを無視し、URL ルールのみの運用でのパフォーマンスを維持します。
+    - v1.3.0 以前のルール（`matchTarget` + 単一 `pattern`）は読み込み時に自動変換されます。
+- **部分一致の追加 (Contains match) — v1.3.0**
+    - パターン種別に **部分一致** を追加。URL・タブ名の両対象で選択可能です（`String.includes` による判定、大文字小文字区別あり）。
 - **URL パターンによるタブ色付け (URL-based coloring)**
     - タブの URL が設定済みパターンに一致した際、TST サイドバー上のそのタブへフォント・フォント色・背景色を適用します。
-    - パターン種別は **前方一致** と **正規表現** の 2 種類をサポート。
+    - パターン種別は **前方一致**・**部分一致**・**正規表現** の 3 種類をサポート。
     - 複数ルールが一致する場合はルール一覧上位（優先度が高い）のものが適用されます。
 - **アクティブ／ホバー時の色を個別指定 (Active / hover color overrides) — v1.1.0**
     - 通常時とは別に、マウスホバー時・アクティブタブ時のフォント色と背景色を個別に指定できます。
@@ -61,12 +68,13 @@ Apply your chosen font, font color, and background color (with optional active/h
     - ルール保存前に見た目を確認できます。
 - **リアルタイム反映 (Live update)**
     - タブ新規作成時、URL 変更（ナビゲーション）時に即座に再評価・再色付けします。
+    - タブ名ルール登録時は、タイトル変更時にも再評価・再色付けします（v1.3.0）。
     - Firefox 起動時や TST 再ロード時も、既存の全タブに対して自動で色付けを再適用します。
 - **ルール設定画面 (Rule management)**
     - オプションページからルールを追加・編集・削除・並び替え可能。
-    - 入力値はフォームでバリデーションされます（URL パターン未入力／正規表現構文エラー／カラーコード形式エラー／全スタイル未指定など）。
+    - 入力値はフォームでバリデーションされます（URL・タブ名の両方未入力／正規表現構文エラー／カラーコード形式エラー／全スタイル未指定など）。
     - ルール一覧はフォント色／背景色セルが 2 段構成で、通常色／アクティブ色をひと目で把握可能。透過色はチェッカー背景で視覚化されます。
-    - ルール一覧の「URL パターン」「フォント」列は省略表示時にホバーで全文をツールチップ表示。
+    - ルール一覧の「URL／タブ名」「フォント」列は省略表示時にホバーで全文をツールチップ表示。
     - ライト／ダークのテーマ切替を搭載。
 - **高速な一括適用 (Fast batch apply)**
     - タブを内部でバケット化し、`remove-tab-state` を 1 回 + ルールごとに `add-tab-state` 1 回というバッチ送信方式を採用。2,000 タブ規模でも 1 秒以内に完了します。
@@ -83,8 +91,8 @@ Apply your chosen font, font color, and background color (with optional active/h
 2.  ポップアップから **[オプションを開く]** を選択し、ルール設定画面を開きます。
 3.  **「ルール追加」** セクションで下記を入力し **[新規登録]** を押すとルールが追加されます。
     - **パターン名**（必須。最大 50 文字、重複不可）— ルールを識別するための名前です
-    - **URL パターン**（前方一致または正規表現）
-    - **種別**（前方一致 / 正規表現）
+    - **URL パターン**（任意）と **URL 種別**（前方一致 / 部分一致 / 正規表現）
+    - **タブ名キーワード**（任意）と **タブ名種別**（前方一致 / 部分一致 / 正規表現）— 少なくとも一方は必須（v1.4.0）
     - **フォント**（任意。例: `"Meiryo", sans-serif`）— 入力すると直下にプレビューが表示されます
     - **フォント色**（任意。例: `#ffffff` / `#ffffff80`）
     - **背景色**（任意。例: `#1e3a8a` / `#1e3a8a80`）
