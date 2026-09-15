@@ -196,15 +196,17 @@ const TMS_BACKGROUND = {
 					const hoverSel  = `${tabSel}:hover`;
 					const activeSel = `${tabSel}.active`;
 
-					// 背景色の決定
-					const hoverBg = hasActiveBg
+					// 背景色の決定（α は維持したまま出力する。下地への事前合成はしない）
+					const hoverBg            = hasActiveBg
 						? rule.activeBackgroundColor
 						: (hasBg ? invert(rule.backgroundColor) : null);
+					const hoverBgTranslucent = TMS_COMMON.Funcs.IsTranslucent(hoverBg);
 
 					if (hoverBg) {
+						// background-image も消して、TST のハイライト用グラデーションが残らないようにする
 						lines.push(
 							`${hoverSel} .background, ${activeSel} .background`
-							+ ` { background-color: ${hoverBg}; }`
+							+ ` { background-color: ${hoverBg}; background-image: none; }`
 						);
 					}
 
@@ -214,11 +216,37 @@ const TMS_BACKGROUND = {
 						? rule.activeFontColor
 						: (hasBg ? rule.backgroundColor : null);
 
+					const tabVarDecls = [];
+					if (hoverBg) {
+						if (hoverBgTranslucent) {
+							// 半透明時は TST 既定のアクティブ面を消し、サイドバー地の上に α を乗せる。
+							// 下地を通常背景色へ合成すると、同色＋透過だけの指定で見た目が変わらなくなる。
+							tabVarDecls.push('--tab-surface-active: transparent;');
+							tabVarDecls.push('--tab-surface-hover: transparent;');
+							tabVarDecls.push('--tab-surface-active-hover: transparent;');
+							tabVarDecls.push('background-color: transparent;');
+							tabVarDecls.push('background-image: none;');
+						} else {
+							tabVarDecls.push(`--tab-surface-active: ${hoverBg};`);
+							tabVarDecls.push(`--tab-surface-hover: ${hoverBg};`);
+						}
+					}
 					if (hoverFg) {
+						tabVarDecls.push(`--tab-text: ${hoverFg};`);
+					}
+					if (tabVarDecls.length > 0) {
 						lines.push(
 							`${hoverSel}, ${activeSel}`
-							+ ` { --tab-text: ${hoverFg}; }`
+							+ ` { ${tabVarDecls.join(' ')} }`
 						);
+					}
+					if (hoverBg && hoverBgTranslucent) {
+						lines.push(
+							`${hoverSel} tab-item-substance, ${activeSel} tab-item-substance`
+							+ ` { background-color: transparent; background-image: none; }`
+						);
+					}
+					if (hoverFg) {
 						lines.push(
 							`${hoverSel} .label, ${activeSel} .label`
 							+ ` { color: ${hoverFg}; }`

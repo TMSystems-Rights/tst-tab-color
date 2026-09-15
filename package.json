@@ -1,6 +1,6 @@
 {
 	"name": "tst-tab-color",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"description": "Firefox拡張「TST タブカラー」用ワークスペース",
 	"main": "index.js",
 	"scripts": {

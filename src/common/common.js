@@ -100,6 +100,55 @@ const TMS_COMMON = {
 		},
 
 		/**
+		 * カラーコードを RGBA 成分に分解する。
+		 * #rgb / #rgba / #rrggbb / #rrggbbaa の 4 形式に対応。
+		 * @param {string} hex - カラーコード文字列（4 形式いずれか）
+		 * @returns {{ r: number, g: number, b: number, a: number }|null}
+		 *          r/g/b は 0〜255、a は 0〜1。不正時は null
+		 */
+		ParseColor: function (hex) {
+			const s  = String(hex);
+			const ch = (h) => parseInt(h, 16);
+
+			// #rgb
+			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
+			if (m3) {
+				return { r: ch(m3[1]+m3[1]), g: ch(m3[2]+m3[2]), b: ch(m3[3]+m3[3]), a: 1 };
+			}
+			// #rgba
+			const m4 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
+			if (m4) {
+				return {
+					r: ch(m4[1]+m4[1]),
+					g: ch(m4[2]+m4[2]),
+					b: ch(m4[3]+m4[3]),
+					a: ch(m4[4]+m4[4]) / 255
+				};
+			}
+			// #rrggbb
+			const m6 = s.match(/^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/);
+			if (m6) {
+				return { r: ch(m6[1]), g: ch(m6[2]), b: ch(m6[3]), a: 1 };
+			}
+			// #rrggbbaa
+			const m8 = s.match(/^#([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2})$/);
+			if (m8) {
+				return { r: ch(m8[1]), g: ch(m8[2]), b: ch(m8[3]), a: ch(m8[4]) / 255 };
+			}
+			return null;
+		},
+
+		/**
+		 * カラーコードが半透明（α < 1）かどうかを返す。不正値は false。
+		 * @param {string} hex - カラーコード文字列（4 形式いずれか）
+		 * @returns {boolean} 半透明なら true
+		 */
+		IsTranslucent: function (hex) {
+			const c = TMS_COMMON.Funcs.ParseColor(hex);
+			return !!(c && c.a < 1);
+		},
+
+		/**
 		 * 文字列の前後から半角空白（\s）と全角空白（U+3000）を除去する。
 		 * 既存の String.prototype.trim() は半角空白系のみ除去するため、全角空白を残す不整合を解消する目的で追加した。
 		 * @param {string} s - 対象文字列（null/undefined は空文字扱い）
