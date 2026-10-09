@@ -274,7 +274,7 @@ const TMS_OPTIONS = {
 		 * @returns {string} #rrggbb 形式の RGB 部分
 		 */
 		NormalizeColorToHex6: function (value) {
-			const s = String(value);
+			const s  = String(value);
 			// #rgb / #rgba → #rrggbb
 			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])/);
 			if (m3 && (s.length === 4 || s.length === 5)) {
@@ -292,25 +292,25 @@ const TMS_OPTIONS = {
 		 * @returns {string} #rrggbbaa 形式
 		 */
 		NormalizeColorToHex8: function (value) {
-			const s = String(value);
+			const s  = String(value);
 			// #rgb → #rrggbbff
 			const m3 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
 			if (m3) {
-				return '#' + m3[1]+m3[1] + m3[2]+m3[2] + m3[3]+m3[3] + 'ff'; 
+				return '#' + m3[1]+m3[1] + m3[2]+m3[2] + m3[3]+m3[3] + 'ff';
 			}
 			// #rgba → #rrggbbaa
 			const m4 = s.match(/^#([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])([0-9a-fA-F])$/);
 			if (m4) {
-				return '#' + m4[1]+m4[1] + m4[2]+m4[2] + m4[3]+m4[3] + m4[4]+m4[4]; 
+				return '#' + m4[1]+m4[1] + m4[2]+m4[2] + m4[3]+m4[3] + m4[4]+m4[4];
 			}
 			// #rrggbb → #rrggbbff
 			const m6 = s.match(/^#([0-9a-fA-F]{6})$/);
 			if (m6) {
-				return '#' + m6[1] + 'ff'; 
+				return '#' + m6[1] + 'ff';
 			}
 			// #rrggbbaa → そのまま
 			if (/^#[0-9a-fA-F]{8}$/.test(s)) {
-				return s; 
+				return s;
 			}
 			return value;
 		},
@@ -322,16 +322,16 @@ const TMS_OPTIONS = {
 		 * @returns {number} 0〜100 の整数
 		 */
 		ExtractAlpha: function (value) {
-			const s = String(value);
+			const s  = String(value);
 			// #rgba
 			const m4 = s.match(/^#[0-9a-fA-F]{3}([0-9a-fA-F])$/);
 			if (m4) {
-				return Math.round(parseInt(m4[1]+m4[1], 16) / 255 * 100); 
+				return Math.round(parseInt(m4[1]+m4[1], 16) / 255 * 100);
 			}
 			// #rrggbbaa
 			const m8 = s.match(/^#[0-9a-fA-F]{6}([0-9a-fA-F]{2})$/);
 			if (m8) {
-				return Math.round(parseInt(m8[1], 16) / 255 * 100); 
+				return Math.round(parseInt(m8[1], 16) / 255 * 100);
 			}
 			return 100;
 		},
@@ -393,10 +393,10 @@ const TMS_OPTIONS = {
 			// ドラッグハンドル列
 			$tr.append($('<td>').addClass('tm-drag-handle').text('≡'));
 
-			const norm       = TMS_COMMON.Funcs.NormalizeRule(rule);
-			const urlPat     = norm ? norm.urlPattern : '';
-			const titlePat   = norm ? norm.titlePattern : '';
-			const urlPrefix  = TMS_COMMON.Funcs.GetMsg('optionsListUrlPrefix');
+			const norm        = TMS_COMMON.Funcs.NormalizeRule(rule);
+			const urlPat      = norm ? norm.urlPattern : '';
+			const titlePat    = norm ? norm.titlePattern : '';
+			const urlPrefix   = TMS_COMMON.Funcs.GetMsg('optionsListUrlPrefix');
 			const titlePrefix = TMS_COMMON.Funcs.GetMsg('optionsListTitlePrefix');
 
 			// パターン列（1段目: パターン名, 2段目以降: URL／タブ名）
@@ -688,9 +688,9 @@ const TMS_OPTIONS = {
 			if (!norm) {
 				return;
 			}
-			const UI = TMS_OPTIONS.UI;
-			elems.txtName.value        = norm.name;
-			elems.txtUrlPattern.value  = norm.urlPattern;
+			const UI                    = TMS_OPTIONS.UI;
+			elems.txtName.value         = norm.name;
+			elems.txtUrlPattern.value   = norm.urlPattern;
 			elems.txtTitlePattern.value = norm.titlePattern;
 			UI.SetPatternTypeRadios(elems.radUrlPrefix, elems.radUrlContains, elems.radUrlRegexp, norm.urlPatternType);
 			UI.SetPatternTypeRadios(elems.radTitlePrefix, elems.radTitleContains, elems.radTitleRegexp, norm.titlePatternType);
@@ -857,8 +857,8 @@ const TMS_OPTIONS = {
 		OnAddRule: async function () {
 			TMS_OPTIONS.UI.ClearError();
 
-			const elems        = TMS_OPTIONS.Elements;
-			const TrimAll      = TMS_COMMON.Funcs.TrimAll;
+			const elems         = TMS_OPTIONS.Elements;
+			const TrimAll       = TMS_COMMON.Funcs.TrimAll;
 			const patternFields = TMS_OPTIONS.UI.GetPatternFieldsFromForm();
 
 			// パターン名のバリデーション（必須・最大長・重複）
@@ -937,7 +937,7 @@ const TMS_OPTIONS = {
 					TMS_OPTIONS.UI.ClearForm();
 					return;
 				}
-				rules[idx] = {
+				rules[idx]                        = {
 					id:                    rules[idx].id,
 					name:                  TMS_COMMON.Funcs.TrimAll(elems.txtName.value),
 					urlPattern:            patternFields.urlPattern,
@@ -1008,10 +1008,10 @@ const TMS_OPTIONS = {
 
 			const rule = rules[index];
 
-			TMS_OPTIONS.State.mode         = 'edit';
-			TMS_OPTIONS.State.editingIndex = index;
+			TMS_OPTIONS.State.mode            = 'edit';
+			TMS_OPTIONS.State.editingIndex    = index;
 			// 変更前の値を深さ 1 のコピーとして保持（プリミティブのみのため shallow で十分）
-			const norm = TMS_COMMON.Funcs.NormalizeRule(rule);
+			const norm                        = TMS_COMMON.Funcs.NormalizeRule(rule);
 			TMS_OPTIONS.State.editingSnapshot = norm ? {
 				id:                    norm.id,
 				name:                  norm.name,
@@ -1242,9 +1242,9 @@ const TMS_OPTIONS = {
 			if (!txtId) {
 				return;
 			}
-			const $txt   = $('#' + txtId);
-			const rgb6   = e.target.value;   // #rrggbb
-			const curVal = TMS_COMMON.Funcs.TrimAll(String($txt.val()));
+			const $txt     = $('#' + txtId);
+			const rgb6     = e.target.value;   // #rrggbb
+			const curVal   = TMS_COMMON.Funcs.TrimAll(String($txt.val()));
 			// 現在のテキスト値からαを取得して引き継ぐ
 			const alphaPct = TMS_OPTIONS.Validation.ValidateColor(curVal)
 				? TMS_OPTIONS.Validation.ExtractAlpha(curVal)

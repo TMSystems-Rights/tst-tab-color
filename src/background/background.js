@@ -72,7 +72,7 @@ const TMS_BACKGROUND = {
 				TMS_BACKGROUND.State.classCleanupCount,
 				TMS_BACKGROUND.State.rules.length
 			);
-			TMS_BACKGROUND.State.hasTitleRules = TMS_BACKGROUND.State.rules.some(
+			TMS_BACKGROUND.State.hasTitleRules     = TMS_BACKGROUND.State.rules.some(
 				function (r) {
 					const norm = TMS_COMMON.Funcs.NormalizeRule(r);
 					return norm && TMS_COMMON.Funcs.TrimAll(norm.titlePattern).length > 0;
@@ -369,7 +369,7 @@ const TMS_BACKGROUND = {
 				elapsedMs: 0
 			});
 			/** @type {Map<number, number[]>} ルール index → マッチしたタブ ID の配列 */
-			const buckets = new Map();
+			const buckets   = new Map();
 			/** @type {number[]} 有効タブ ID の全リスト（remove-tab-state の送信先） */
 			const allTabIds = [];
 			for (let i = 0; i < tabs.length; i++) {
