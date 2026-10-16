@@ -634,9 +634,9 @@ const TMS_OPTIONS = {
 		ClearForm: function () {
 			const elems = TMS_OPTIONS.Elements;
 
-			elems.txtName.value                    = '';
-			elems.txtUrlPattern.value              = '';
-			elems.txtTitlePattern.value            = '';
+			elems.txtName.value         = '';
+			elems.txtUrlPattern.value   = '';
+			elems.txtTitlePattern.value = '';
 			TMS_OPTIONS.UI.SetPatternTypeRadios(elems.radUrlPrefix, elems.radUrlContains, elems.radUrlRegexp, 'prefix');
 			TMS_OPTIONS.UI.SetPatternTypeRadios(elems.radTitlePrefix, elems.radTitleContains, elems.radTitleRegexp, 'prefix');
 			elems.txtFont.value                    = '';

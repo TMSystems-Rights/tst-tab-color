@@ -219,8 +219,8 @@ const TMS_COMMON = {
 				normalized.titlePattern     = rule.pattern     || '';
 				normalized.titlePatternType = rule.patternType || 'prefix';
 			} else {
-				normalized.urlPattern       = rule.pattern     || '';
-				normalized.urlPatternType   = rule.patternType || 'prefix';
+				normalized.urlPattern     = rule.pattern     || '';
+				normalized.urlPatternType = rule.patternType || 'prefix';
 			}
 			return normalized;
 		},
